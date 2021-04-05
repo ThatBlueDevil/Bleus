@@ -49,7 +49,7 @@ local A = Main.Button(
         end,
         Menu = {
             Information = function(self)
-                A.Banner(
+                XX.Banner(
                     {
                         Text = "Revive's all dead players or teleports you to the start."
                     }
@@ -67,7 +67,7 @@ local B = Main.Button(
         end,
         Menu = {
             Information = function(self)
-                B.Banner(
+                XX.Banner(
                     {
                         Text = "Spawns healing pads."
                     }
@@ -85,7 +85,7 @@ local C = Main.Button(
         end,
         Menu = {
             Information = function(self)
-                C.Banner(
+                XX.Banner(
                     {
                         Text = "Enables tracking, after enabling you cannot disable it."
                     }
