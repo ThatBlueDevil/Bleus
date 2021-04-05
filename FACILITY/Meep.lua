@@ -96,7 +96,7 @@ local C = Main.Button(
 )
 
 local D = Farm.Toggle({
-    Text = "I'm a switch",
+    Text = "Coin Farm",
     Callback = function(Value)
         getgenv().coins = Value
         while getgenv().coins do
