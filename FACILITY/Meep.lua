@@ -34,10 +34,10 @@ local Main =
     }
 )
 
-local Farm =
+local Misc =
     XX.New(
     {
-        Title = "Farm"
+        Title = "Misc"
     }
 )
 
@@ -46,6 +46,8 @@ local A = Main.Button(
         Text = "Resurrect",
         Callback = function()
             game:GetService("ReplicatedStorage").Ressurect:FireServer()
+            wait(1)
+            game:GetService('Players').LocalPlayer.CameraMode = 'Classic'
         end,
         Menu = {
             Information = function(self)
@@ -95,12 +97,24 @@ local C = Main.Button(
     }
 )
 
-local D = Farm.Toggle({
+local D = Misc.Toggle({
     Text = "Coin Farm",
     Callback = function(Value)
         getgenv().coins = Value
         while getgenv().coins do
             s["ReplicatedStorage"].GiveCoins:FireServer()
+            s["RunService"].RenderStepped:Wait()
+        end
+    end,
+    Enabled = false
+})
+
+local E = Main.Toggle({
+    Text = "Lag Server",
+    Callback = function(Value)
+        getgenv().traps = Value
+        while getgenv().traps do
+            s["ReplicatedStorage"].UseTrap:FireServer()
             s["RunService"].RenderStepped:Wait()
         end
     end,
