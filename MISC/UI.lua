@@ -34,6 +34,6 @@ text.BorderSizePixel = 0
 text.Size = UDim2.new(0, 485, 0, 63)
 text.ZIndex = 2
 text.Font = Enum.Font.Gotham
-text.Text = "Made by ThatBlueDevil#4480 and friends"
+text.Text = "Made by ThatBlueDevil#4480 & Ghille#1591 & Spencer#0147"
 text.TextColor3 = Color3.fromRGB(170, 85, 255)
 text.TextSize = 16.000
