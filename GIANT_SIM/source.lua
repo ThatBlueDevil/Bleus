@@ -89,7 +89,7 @@ local blah =
             _G.AutoJump = Value
             while _G.AutoJump do
                 wait(0.60)
-                local User = User.Players.LocalPlayer
+                local User = game.Players.LocalPlayer
                 local UserCharacter = User.Character
                 local Humanoid = UserCharacter.Humanoid
                 Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
