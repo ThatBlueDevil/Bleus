@@ -73,6 +73,13 @@ local Main =
     }
 )
 
+local Event =
+    XX.New(
+    {
+            Title = "Event"
+    }
+)
+
 local lols =
     Main.Toggle(
     {
@@ -86,7 +93,7 @@ local lols =
             if (Egg) then
                 User.Character.Humanoid:ChangeState(11)
                 
-                if (User.Character.HumanoidRootPart.Position - Egg.Position).Magnitude > math.huge then TweenSpeed = .25 else TweenSpeed = .1 end
+                if (User.Character.HumanoidRootPart.Position - Egg.Position).Magnitude > math.huge then TweenSpeed = 1 else TweenSpeed = .1 end
                 
                 tweenService, tweenInfo = s["TweenService"], TweenInfo.new(TweenSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
                 T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Egg.Position)})
@@ -134,14 +141,55 @@ local lols =
     }
 )
 
+--[[
+
+finding better method lol
+
+local lols =
+    Event.Toggle(
+    {
+        Text = "Slay Borock | Mission",
+        Callback = function(v)
+            local Entity = s['Workspace'].NPC.Boss.Borock
+            
+            _G.Enabled = v
+            i = 0
+            
+            while _G.Enabled do
+                if Entity ~= nil and Entity.HumanoidRootPart.Position ~= nil then 
+                    if (User.Character.HumanoidRootPart.Position - Entity.HumanoidRootPart.Position).Magnitude > math.huge then DistanceSpeed = 1 else DistanceSpeed = .1 end
+                    
+                    s["Workspace"].CurrentCamera.CFrame = CFrame.new(User.Character.HumanoidRootPart.Position, Entity.HumanoidRootPart.Position) * CFrame.new(0, 0, 35)
+                    User.Character.Humanoid:ChangeState(11)
+            
+                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(DistanceSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = Entity.HumanoidRootPart.CFrame * CFrame.Angles(0 , i , 0) * CFrame.new(0, 0, 45) })
+                    T:Play()
+                    
+                    i = i + math.rad(25)
+                    
+                    wait()
+                end
+            end
+        end,
+        Enabled = false
+    }
+)
+
+--]]
+
 spawn(function()
     while true do
         if (User.Character ~= nil and _G.AutoFarm) then
             local function NoClipping()
-                for _, Parts in next, (User.Character:GetDescendants()) do
-                    if (Parts:IsA("BasePart") and Parts.CanCollide == true) then
-                        Parts.CanCollide = false
+                if User.Character.Humanoid.RigType == Enum.HumanoidRigType.R6 then
+                    for _, Parts in next, (User.Character:GetDescendants()) do
+                        if (Parts:IsA("BasePart") and Parts.CanCollide == true) then
+                            Parts.CanCollide = false
+                        end
                     end
+                else
+                    User.Character.Humanoid:ChangeState(11)
                 end
             end
             
