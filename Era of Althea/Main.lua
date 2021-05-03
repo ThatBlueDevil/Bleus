@@ -70,9 +70,9 @@ local lol =
 
                 local Entity = Nearest()
 
-                if (Entity) then
-                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Entity.HumanoidRootPart.Position) * CFrame.new(0, 7.5, 5.5)})
+                if (Entity ~= nil) then
+                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Entity.HumanoidRootPart.Position)})
                     T:Play()
                 end
                 
@@ -89,9 +89,13 @@ local lol =
         Text = "Entity Killaura",
         Callback = function(Value)
             _G.KillAura = Value
-
+            
+            local Entity = Nearest()
+            
             while _G.KillAura and wait() do
-                SomeWhatSecretEventLol:FireServer("SecretCode") -- why are game developers shit at hiding keys ;-
+                if (Entity ~= nil) then
+                    SomeWhatSecretEventLol:FireServer("SecretCode") -- why are game developers shit at hiding keys ;-;
+                end
             end
         end,
         
