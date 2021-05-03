@@ -103,7 +103,7 @@ local lol =
             
             local Entity = Nearest()
             
-            while _G.KillAura and wait() do
+            while _G.KillAura and wait(.1) do
                 if (Entity ~= nil) then
                     SomeWhatSecretEventLol:FireServer("SecretCode") -- why are game developers shit at hiding keys ;-;
                 end
