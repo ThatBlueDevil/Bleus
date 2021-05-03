@@ -21,6 +21,13 @@ local Main =
     }
 )
 
+local Settings =
+    Library.New(
+    {
+        Title = "Settings"
+    }
+)
+
 local s =
     setmetatable(
     {},
@@ -34,6 +41,8 @@ local s =
     }
 )
 
+_G.Studs = 5000
+
 local User = s["Players"].LocalPlayer
 
 local SomeWhatSecretEventLol = User.Character.Client.Events["LightAttack"]
@@ -41,14 +50,14 @@ local SomeWhatSecretEventLol = User.Character.Client.Events["LightAttack"]
 -- Functions --
 
 function Nearest()
-    d = math.huge
+    d = _G.Studs
     e = nil
     
     for i, v in ipairs(s["Workspace"].NPCS:GetChildren()) do
         if (v:FindFirstChild("Hitbox") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0) then
             local Magnitude = (User.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
                 
-            if (Magnitude < d) then
+            if (Magnitude < d and Magnitude > 0) then
                 d = Magnitude
                 e = v
             end
@@ -71,7 +80,9 @@ local lol =
                 local Entity = Nearest()
 
                 if (Entity ~= nil) then
-                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+                    if (User.Character.HumanoidRootPart.Position - Entity.HumanoidRootPart.Position).Magnitude > math.huge then TweenSpeed = .75 else TweenSpeed = .30 end
+                    
+                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(TweenSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
                     T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Entity.HumanoidRootPart.Position)})
                     T:Play()
                 end
@@ -100,6 +111,19 @@ local lol =
         end,
         
         Enabled = false
+    }
+)
+
+local TweenSpeed =
+    Settings.Slider(
+    {
+        Text = "Max Entity Distance",
+        Callback = function(Value)
+            _G.Studs = Value
+        end,
+        Min = 1,
+        Max = 10000,
+        Def = 5000
     }
 )
 
