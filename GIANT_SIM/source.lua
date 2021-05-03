@@ -86,13 +86,30 @@ local lols =
             if (Egg) then
                 User.Character.Humanoid:ChangeState(11)
                 
-                if (User.Character.HumanoidRootPart.Position - Egg.Position).Magnitude > math.huge then L = 1 else L = .1 end
+                if (User.Character.HumanoidRootPart.Position - Egg.Position).Magnitude > math.huge then TweenSpeed = .25 else TweenSpeed = .1 end
                 
-                tweenService, tweenInfo = s["TweenService"], TweenInfo.new(L, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+                tweenService, tweenInfo = s["TweenService"], TweenInfo.new(TweenSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
                 T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Egg.Position)})
                 T:Play()
                 end
                 wait()
+            end
+        end,
+        Enabled = false
+    }
+)
+
+local blah =
+    Main.Toggle(
+    {
+        Text = "Auto Jump",
+        Callback = function(Value)
+            _G.AutoJump = Value
+            while _G.AutoJump do
+                local Humanoid = User.Character.Humanoid
+                Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                
+                wait(.6)
             end
         end,
         Enabled = false
