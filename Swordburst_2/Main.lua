@@ -252,7 +252,7 @@ local TweenSpeed =
 local Invisiblity =
     Misc.Button(
     {
-        Text = "Invisiblity",
+        Text = "Invisibility",
         Callback = function()
             GoInvisible()
         end
