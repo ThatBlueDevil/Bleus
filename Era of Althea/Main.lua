@@ -44,6 +44,7 @@ local s =
 _G.Studs = 5000
 
 local User = s["Players"].LocalPlayer
+local WorkSpace = s["Workspace"]
 
 local SomeWhatSecretEventLol = User.Character.Client.Events["LightAttack"]
 
@@ -79,12 +80,16 @@ local lol =
 
                 local Entity = Nearest()
 
-                if (Entity ~= nil) then
+                if (Entity ~= nil and Workspace:FindFirstChild(User.Name).Health.Value ~= 0 and User.Character.Humanoid.Health ~= 0) then
+                    local i = 0
+                    
                     if (User.Character.HumanoidRootPart.Position - Entity.HumanoidRootPart.Position).Magnitude > math.huge then TweenSpeed = .75 else TweenSpeed = .30 end
                     
                     tweenService, tweenInfo = s["TweenService"], TweenInfo.new(TweenSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Entity.HumanoidRootPart.Position)})
+                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Entity.HumanoidRootPart.Position) * CFrame.Angles(0 , i , 0)})
                     T:Play()
+                    
+                    i = i + math.rad(20)
                 end
                 
                 wait()
@@ -102,9 +107,8 @@ local lol =
             _G.KillAura = Value
             
             local Entity = Nearest()
-            
-            while _G.KillAura and wait(.1) do
-                if (Entity ~= nil) then
+            while _G.KillAura and wait(.05) do
+                if (Entity ~= nil and Workspace:FindFirstChild(User.Name).Health.Value ~= 0 and User.Character.Humanoid.Health ~= 0) then
                     SomeWhatSecretEventLol:FireServer("SecretCode") -- why are game developers shit at hiding keys ;-;
                 end
             end
@@ -121,7 +125,7 @@ local TweenSpeed =
         Callback = function(Value)
             _G.Studs = Value
         end,
-        Min = 1,
+        Min = 150,
         Max = 10000,
         Def = 5000
     }
