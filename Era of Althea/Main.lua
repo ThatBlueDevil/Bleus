@@ -243,18 +243,6 @@ spawn(function()
             else
                 UserCharacter.Humanoid:ChangeState(11)
             end
-            
-            for _, v in pairs, (WorkSpace:GetDescendants()) do
-                if (v:IsA("BasePart") and v.CanCollide == true) then
-                    v.CanCollide = false
-                end  
-            end
-            
-            WorkSpace.DescendantAdded:Connect(function(i)
-                if i:IsA("BasePart") and i.CanCollide == true then
-                    i.CanCollide = false
-                end
-            end)
         end
         
         wait()
