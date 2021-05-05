@@ -51,8 +51,6 @@ local EntityList = {
     "G-Knights"
 }
 
-getgenv().PrioritizedEntitys = "Wolf"
-
 getgenv().Studs = 5000
 getgenv().TweenSpeed = 125
 
@@ -61,6 +59,39 @@ local WorkSpace = s["Workspace"]
 local UserCharacter = User.Character or User.CharacterAdded:Wait()
 
 local SomeWhatSecretEventLol = UserCharacter.Client.Events["LightAttack"]
+
+--
+
+local setreadonly = make_writeable or setreadonly or changereadonly or change_writeable
+
+local metatable = getrawmetatable(game) or debug.getmetatable(game)
+local oldmetatable = metatable.__namecall
+
+local check = checkcaller()
+
+setreadonly(metatable, false)
+
+if not newcclosure then
+    newcclosure = function(cclosure)
+        return cclosure
+    end
+end
+
+metatable.__namecall =
+    newcclosure(function(self, ...)
+        local Arguments = {...}
+        
+        local Method = getnamecallmethod()
+        
+        if not check then
+            if Method == "Kick" or Method == "kick" then
+                return wait(9e9)
+            end
+        end
+        
+        return oldmetatable(self, ...)
+    end
+)
 
 -- Functions --
 
@@ -73,13 +104,8 @@ function Nearest()
             local Magnitude = (UserCharacter.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
                 
             if (Magnitude < d and Magnitude > 1) then
-                if (getgenv().PEEnabled == true and getgenv().PrioritizedEntitys and getgenv().PrioritizedEntitys ~= 'None' and v.Name == getgenv().PrioritizedEntitys) then
-                    d = Magnitude
-                    e = v
-                elseif (getgenv().PEEnabled == false and getgenv().PrioritizedEntitys) then
-                    d = Magnitude
-                    e = v
-                end
+                d = Magnitude
+                e = v
             end
         end
     end
@@ -87,7 +113,21 @@ function Nearest()
     return e
 end
 
--- Main Code --
+--[[
+disabled till fixed
+
+if (getgenv().PEEnabled == true and getgenv().PrioritizedEntitys and getgenv().PrioritizedEntitys ~= 'None' and v.Name == getgenv().PrioritizedEntitys) then
+    d = Magnitude
+    e = v
+else
+    d = Magnitude
+    e = v
+end
+--]]
+
+--[[
+
+disabled till fixed
 
 local lols = Main.Dropdown({
     Text = "Prioritize Entity's",
@@ -111,6 +151,9 @@ local lol =
         Enabled = false
     }
 )
+--]]
+
+-- Main Code --
 
 local lol =
     Main.Toggle(
@@ -200,7 +243,20 @@ spawn(function()
             else
                 UserCharacter.Humanoid:ChangeState(11)
             end
+            
+            for _, v in pairs, (WorkSpace:GetDescendants()) do
+                if (v:IsA("BasePart") and v.CanCollide == true) then
+                    v.CanCollide = false
+                end  
+            end
+            
+            WorkSpace.DescendantAdded:Connect(function(i)
+                if i:IsA("BasePart") and i.CanCollide == true then
+                    i.CanCollide = false
+                end
+            end)
         end
+        
         wait()
     end
 end)
