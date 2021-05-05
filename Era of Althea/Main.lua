@@ -1,4 +1,4 @@
-local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+local Material = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
 local Library =
     Material.Load(
@@ -41,26 +41,45 @@ local s =
     }
 )
 
-_G.Studs = 5000
+local EntityList = {
+    "Wolf",
+    "Dire Wolf",
+    "Orc",
+    "Golem",
+    "Abu",
+    "Stork",
+    "G-Knights"
+}
+
+getgenv().PrioritizedEntitys = "Wolf"
+
+getgenv().Studs = 5000
+getgenv().TweenSpeed = 125
 
 local User = s["Players"].LocalPlayer
 local WorkSpace = s["Workspace"]
+local UserCharacter = User.Character or User.CharacterAdded:Wait()
 
-local SomeWhatSecretEventLol = User.Character.Client.Events["LightAttack"]
+local SomeWhatSecretEventLol = UserCharacter.Client.Events["LightAttack"]
 
 -- Functions --
 
 function Nearest()
-    d = _G.Studs
+    d = getgenv().Studs
     e = nil
     
-    for i, v in ipairs(s["Workspace"].NPCS:GetChildren()) do
-        if (v:FindFirstChild("Hitbox") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0) then
-            local Magnitude = (User.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+    for i, v in ipairs(WorkSpace.NPCS:GetChildren()) do
+        if (v:FindFirstChild("Hitbox") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Tail4") and v.Humanoid.Health > 0) then
+            local Magnitude = (UserCharacter.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
                 
-            if (Magnitude < d and Magnitude > 0) then
-                d = Magnitude
-                e = v
+            if (Magnitude < d and Magnitude > 1) then
+                if (getgenv().PEEnabled == true and getgenv().PrioritizedEntitys and getgenv().PrioritizedEntitys ~= 'None' and v.Name == getgenv().PrioritizedEntitys) then
+                    d = Magnitude
+                    e = v
+                elseif (getgenv().PEEnabled == false and getgenv().PrioritizedEntitys) then
+                    d = Magnitude
+                    e = v
+                end
             end
         end
     end
@@ -70,26 +89,48 @@ end
 
 -- Main Code --
 
+local lols = Main.Dropdown({
+    Text = "Prioritize Entity's",
+    Callback = function(v)
+        getgenv().PrioritizedEntitys = v
+    end,
+    Options = {
+        "None",
+        table.unpack(EntityList)
+    }
+})
+
+local lol =
+    Main.Toggle(
+    {
+        Text = "Prioritize",
+        Callback = function(v)
+            getgenv().PEEnabled = v
+        end,
+        
+        Enabled = false
+    }
+)
+
 local lol =
     Main.Toggle(
     {
         Text = "AutoFarm",
-        Callback = function(Value)
-            _G.AutoFarm = Value
-            while _G.AutoFarm do
-
+        Callback = function(v)
+            getgenv().AutoFarm = v
+            
+            while getgenv().AutoFarm do
                 local Entity = Nearest()
+                i = 90
 
                 if (Entity ~= nil and Workspace:FindFirstChild(User.Name).Health.Value ~= 0 and User.Character.Humanoid.Health ~= 0) then
-                    local i = 0
-                    
-                    if (User.Character.HumanoidRootPart.Position - Entity.HumanoidRootPart.Position).Magnitude > math.huge then TweenSpeed = .75 else TweenSpeed = .30 end
-                    
-                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(TweenSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Entity.HumanoidRootPart.Position) * CFrame.Angles(0 , i , 0)})
-                    T:Play()
-                    
-                    i = i + math.rad(20)
+                    pcall(function()
+                        if (User.Character.HumanoidRootPart.Position - Entity.HumanoidRootPart.Position).Magnitude > getgenv().Studs then TweenSpeed = 3 else TweenSpeed = 2.5 end
+                        
+                        tweenService, tweenInfo = s["TweenService"], TweenInfo.new((User.Character.HumanoidRootPart.Position - Entity["Tail4"].Position).Magnitude / getgenv().TweenSpeed, Enum.EasingStyle.Quad)
+                        T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = Entity["Tail4"].CFrame * CFrame.Angles(0, math.rad(i), 0)})
+                        T:Play()
+                    end)
                 end
                 
                 wait()
@@ -103,12 +144,13 @@ local lol =
     Main.Toggle(
     {
         Text = "Entity Killaura",
-        Callback = function(Value)
-            _G.KillAura = Value
+        Callback = function(v)
+            getgenv().KillAura = v
             
             local Entity = Nearest()
-            while _G.KillAura and wait(.05) do
-                if (Entity ~= nil and Workspace:FindFirstChild(User.Name).Health.Value ~= 0 and User.Character.Humanoid.Health ~= 0) then
+            
+            while getgenv().KillAura and wait(.05) do
+                if (Entity ~= nil and WorkSpace:FindFirstChild(User.Name).Health.Value ~= 0 and UserCharacter.Humanoid.Health ~= 0) then
                     SomeWhatSecretEventLol:FireServer("SecretCode") -- why are game developers shit at hiding keys ;-;
                 end
             end
@@ -118,12 +160,12 @@ local lol =
     }
 )
 
-local TweenSpeed =
+local EntityDistance =
     Settings.Slider(
     {
         Text = "Max Entity Distance",
-        Callback = function(Value)
-            _G.Studs = Value
+        Callback = function(v)
+            getgenv().Studs = v
         end,
         Min = 150,
         Max = 10000,
@@ -131,22 +173,33 @@ local TweenSpeed =
     }
 )
 
+local TweenSpeed =
+    Settings.Slider(
+    {
+        Text = "Tweening Speed",
+        Callback = function(v)
+            getgenv().TweenSpeed = v
+        end,
+        Min = 10,
+        Max = 250,
+        Def = 50
+    }
+)
+
 spawn(function()
     while true do
-        if (User.Character ~= nil and _G.AutoFarm) then
-            local function NoClipping()
-                if User.Character.Humanoid.RigType == Enum.HumanoidRigType.R6 then
-                    for _, Parts in next, (User.Character:GetDescendants()) do
-                        if (Parts:IsA("BasePart") and Parts.CanCollide == true) then
-                            Parts.CanCollide = false
-                        end
-                    end
-                else
-                    User.Character.Humanoid:ChangeState(11)
-                end
-            end
+        if (UserCharacter and getgenv().AutoFarm) then
+            User.DevCameraOcclusionMode = 1
             
-            spawn(NoClipping)
+            if UserCharacter.Humanoid.RigType == Enum.HumanoidRigType.R6 then
+                for _, i in next, (UserCharacter:GetDescendants()) do
+                    if (i:IsA("BasePart") and i.CanCollide == true) then
+                        i.CanCollide = false
+                    end
+                end
+            else
+                UserCharacter.Humanoid:ChangeState(11)
+            end
         end
         wait()
     end
