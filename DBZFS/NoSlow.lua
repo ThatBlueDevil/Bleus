@@ -6,6 +6,7 @@ function NoSlow()
             v:Destroy()
             
             if v.Name == "Justice Combination" then
+                
                 local f = game.Players.LocalPlayer.Character:WaitForChild("Action")
                 
                 if f then
@@ -20,4 +21,4 @@ function NoSlow()
     end
 end
 
-coroutine.wrap(NoSlow)()
+coroutine.wrap(function()game:GetService("RunService").Heartbeat:Connect(NoSlow)end)()
