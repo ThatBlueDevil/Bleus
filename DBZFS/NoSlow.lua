@@ -1,4 +1,4 @@
-function NoSlow()
+local function NoSlow() -- Suggested by Real Panda :)
     local Destroyables = { "Action", "Attacking", "Using", "heavy", "hyper", "Tele", "tele", "Slow", "Killed", "KiBlasted", "MoveStart", "SuperAction", "Hyper", "Dodging", "KiBlasting", "BStun", "FShake", "Activity" }
     
     for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
