@@ -20,3 +20,5 @@ local function NoSlow() -- Suggested by Real Panda :)
         end
     end
 end
+
+coroutine.resume(coroutine.create(function()NoSlow()end))
