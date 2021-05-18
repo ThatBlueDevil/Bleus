@@ -20,5 +20,3 @@ local function NoSlow() -- Suggested by Real Panda :)
         end
     end
 end
-
-coroutine.wrap(function()game:GetService("RunService").Heartbeat:Connect(NoSlow)end)()
