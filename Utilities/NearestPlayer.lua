@@ -1,5 +1,3 @@
--- LockOn Script Originally made by yakman on v3rmillion. Recreated by ThatBlueDevil
-
 local Client = {}; do
     Client.User = game:GetService("Players").LocalPlayer
     Client.Character = game:GetService("Players").LocalPlayer.Character
