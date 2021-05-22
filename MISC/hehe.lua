@@ -1,1 +1,2 @@
-game.Players.LocalPlayer:Kick('?')
+--game.Players.LocalPlayer:Kick('?')
+warn("lol")
