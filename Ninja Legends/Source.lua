@@ -22,16 +22,19 @@ local s = setmetatable({}, {
 local Player = s.Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:wait()
 
+Player.CharacterAdded:Connect(function(char)
+    Character = char
+end)
+
 --> Functions <--
 
 local Functions = {}; do
     
     function Functions:Find(Directory, Name)
-        d = math.huge
-        e = nil
+        local d, e = math.huge
         
-        for i, v in pairs(Directory:GetDescendants()) do
-            if string.find(v.Name, Name) then
+        for i, v in next, Directory:GetDescendants() do
+            if (v.Name:find(Name)) then
                 local Magnitude = Player:DistanceFromCharacter(v.Position)
                 
                 if (Magnitude < d) then
