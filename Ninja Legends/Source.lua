@@ -47,8 +47,8 @@ local Functions = {}; do
         return e
     end
     
-    function Functions:Tween(obj, Properties, Time, ...)
-        local Tweeb = s.TweenService:Create(obj, TweenInfo.new(Time), Properties)
+    function Functions:Tween(Obj, Properties, Time)
+        local Tweeb = s.TweenService:Create(Obj, TweenInfo.new(Time), Properties)
         Tweeb:Play()
         
     	return Tweeb
