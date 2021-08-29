@@ -1,15 +1,16 @@
-local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+--[[
+    Author: Isela
+    Credits: Duh#0100 | Helped me understand the ui lib a little more
+--]]
 
---> Init <--
-
-local Library = Material.Load({
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))().Load({
     Title = "Ninja Legends  ―  Bleus",
     Style = 1,
     SizeX = 400,
     SizeY = 400,
     Theme = "Aqua",
     ColorOverrides = {
-        MainFrame = Color3.fromRGB(35,35,35)
+        MainFrame = Color3.fromRGB(35, 35, 35)
     }
 })
 
@@ -19,245 +20,308 @@ local s = setmetatable({}, {
     end
 })
 
-local Player = s.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:wait()
+-- Localization.
+local Player = s.Players.LocalPlayer;
+local Character = Player.Character or Player.CharacterAdded:Wait();
+
+local Humanoid = (Character and Character:FindFirstChildWhichIsA("Humanoid"));
+local Root = (Character and Character:FindFirstChild("HumanoidRootPart"));
 
 Player.CharacterAdded:Connect(function(char)
-    Character = char
-end)
+    Character = char;
+    Humanoid = (char and char:FindFirstChildWhichIsA("Humanoid"));
+    Root = (char and char:FindFirstChild("HumanoidRootPart"));
+end);
 
---> Functions <--
+local Workspace = s.Workspace;
+local TweenService = s.TweenService;
+local RunService = s.RunService;
+local VirtualUser = s.VirtualUser;
+local ReplicatedStorage = s.ReplicatedStorage;
 
-local Functions = {}; do
-    
-    function Functions:Find(Directory, Name)
-        local d, e = math.huge
+local Camera = Workspace.CurrentCamera;
+local Heartbeat, Stepped, RenderStepped = RunService.Heartbeat, RunService.Stepped, RunService.RenderStepped;
+
+-- Exploit Check.
+if not firetouchinterest then
+    Player:Kick("[BLEUS]: Your exploit isn't compatible with this script.");
+    return;
+end;
+
+-- Find Close Objects | Tweening | ninjaEvents | sellNin | getCurrency
+local Find, Tween, ninjaEvent, sellNin; do
+    function Find(Directory, Name)
+        local d, e = math.huge;
         
         for i, v in next, Directory:GetDescendants() do
-            if (v.Name:find(Name)) then
-                local Magnitude = Player:DistanceFromCharacter(v.Position)
+            if (v.Name:find(Name) and (v.Transparency and v.Transparency ~= 1)) then
+                local Magnitude = Player:DistanceFromCharacter(v.Position);
                 
-                if (Magnitude < d) then
-                    d = Magnitude
-                    e = v
-                end
-            end
-        end
+                if Magnitude <= d then
+                    d = Magnitude;
+                    e = v;
+                end;
+            end;
+        end;
         
-        return e
-    end
+        return e;
+    end;
     
-    function Functions:Tween(Obj, Properties, Time)
-        local Tweeb = s.TweenService:Create(Obj, TweenInfo.new(Time), Properties)
-        Tweeb:Play()
+    function Tween(Obj, Properties, Time)
+        local Tweeb = TweenService:Create(Obj, TweenInfo.new(Time), Properties);
+        Tweeb:Play();
         
-    	return Tweeb
-    end
-end
+    	return Tweeb;
+    end;
+    
+    function ninjaEvent(Type)
+        if not Player.ninjaEvent then return end;
+        Player.ninjaEvent:FireServer(Type, "Blazing Vortex Island");
+    end;
+    
+    function getCurrency(tblval)
+        local a = Player.PlayerGui.gameGui.currencyFrame.strengthFrame.amountLabel.Text:split("/")[tblval];
+        return tonumber(a:match("[%d]+"));
+    end;
+    
+    function sellNin(lol) -- please lets just not...
+        local SellCircle = Workspace.sellAreaCircles.sellAreaCircle16.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
+        if not SellCircle then return end;
+        
+        if lol then
+            if (getCurrency(1) >= getCurrency(2)) then
+                firetouchinterest(Root, SellCircle.Parent, 0);
+                wait(0.1);
+                firetouchinterest(Root, SellCircle.Parent, 1);
+            end;
+        else
+            firetouchinterest(Root, SellCircle.Parent, 0);
+            wait(0.1);
+            firetouchinterest(Root, SellCircle.Parent, 1);
+        end;
+    end;
+end;
 
---> other stuff <--
-
+-- Anti-AFK.
 Player.Idled:Connect(function()
-   s.VirtualUser:Button2Down(Vector2.new(0,0), s.Workspace.CurrentCamera.CFrame)
-   wait(1)
-   s.VirtualUser:Button2Up(Vector2.new(0,0), s.Workspace.CurrentCamera.CFrame)
-end)
+   VirtualUser:Button2Down(Vector2.new(0,0), CurrentCamera.CFrame);
+   wait(1);
+   VirtualUser:Button2Up(Vector2.new(0,0), CurrentCamera.CFrame);
+end);
 
-local RankList = {"Rookie", "Grasshopper", "Apprentice", "Samurai", "Assassin", "Shadow", "Ninja", "Master Ninja", "Sensei", "Master Sensei", "Ninja Legend", "Master Of Shadows", "Immortal Assassin", "Eternity Hunter", "Shadow Legend", "Dragon Warrior", "Dragon Master", "Chaos Sensei", "Chaos Legend", "Master Of Elements", "Elemental Legend", "Ancient Battle Master", "Ancient Battle Legend", "Legendary Shadow Duelist", "Master Legend Assassin", "Mythic Shadowmaster", "Legendary Shadowmaster", "Awakened Scythemaster", "Awakened Scythe Legend", "Master Legend Zephyr", "Golden Sun Shuriken Master", "Golden Sun Shuriken Legend", "Dark Sun Samurai Legend", "Dragon Evolution Form I", "Dragon Evolution Form II", "Dragon Evolution Form III", "Dragon Evolution Form IV", "Dragon Evolution Form V", "Cybernetic Electro Master", "Cybernetic Electro Legend", "Shadow Chaos Assassin", "Shadow Chaos Legend", "Infinity Sensei", "Infinity Legend", "Aether Genesis Master Ninja", "Master Legend Sensei Hunter", "Skystorm Series Samurai Legend", "Master Elemental Hero", "Eclipse Series Soul Master", "Starstrike Master Sensei", "Evolved Series Master Ninja", "Dark Elements Guardian", "Elite Series Master Legend", "Infinity Shadows Master", "Lightning Storm Sensei", "Dark Elements Blademaster", "Rising Shadow Eternal Ninja", "Skyblade Ninja Master", "Shadow Storm Sensei"}
-
---> Pages <--
+-- Tabs and Toggles.
+shared.SellAtMaxNin = false
 
 local Main = Library.New({
-    Title = "Main"
-})
+    Title = "Main";
+}); do
+    Main.Toggle({
+        Text = "Auto Swing",
+        Callback = function(v)
+            shared.AutoSwing = v;
+        end,
+        
+        Enabled = false;
+    });
+    
+    Main.Toggle({
+        Text = "Auto Sell",
+        Callback = function(v)
+            shared.AutoSell = v;
+        end,
+        
+        Enabled = false;
+    });
+    
+    Main.ChipSet({
+        Text = "pop",
+        Callback = function(Chip)
+            table.foreach(Chip, function(Option, State)
+                shared.SellAtMaxNin = State
+            end)
+        end,
+        
+        Options = { ["Sell At Max Ninjitsu"] = false };
+    });
+    
+    Main.Toggle({
+        Text = "Auto Buy Swords",
+        Callback = function(v)
+            shared.AutoBuySwords = v;
+        end,
+        
+        Enabled = false;
+    });
+        
+    Main.Toggle({
+        Text = "Auto Buy Belts",
+        Callback = function(v)
+            shared.AutoBuyBelts = v;
+        end,
+        
+        Enabled = false;
+    });
+    
+    Main.Toggle({
+        Text = "Auto Buy Shurikens",
+        Callback = function(v)
+            shared.AutoBuyShurikens = v;
+        end,
+        
+        Enabled = false;
+    });
+    
+    Main.Toggle({
+        Text = "Auto Buy Skills",
+        Callback = function(v)
+            shared.AutoBuySkills = v;
+        end,
+        
+        Enabled = false;
+    });
+    
+    Main.Toggle({
+        Text = "Auto RankUp",
+        Callback = function(v)
+            shared.AutoRankUp = v;
+        end,
+            
+        Enabled = false;
+    });
+end;
 
-local Modules = Library.New({
-    Title = "AutoFarm"
-})
+local Farming = Library.New({
+    Title = "Farming";
+}); do
+    Farming.Toggle({
+        Text = "Farm Coins",
+        Callback = function(v)
+            shared.AutoFarmCoins = v;
+        end,
+        
+        Enabled = false;
+    });
+    
+    Farming.Toggle({
+        Text = "Farm Chi",
+        Callback = function(v)
+            shared.AutoFarmChi = v;
+        end,
+        
+        Enabled = false;
+    });
+end;
 
 local Misc = Library.New({
     Title = "Misc"
-})
-
---> Actual Shit <--
-
-local AutoSwing = Main.Toggle({
-    Text = "AutoSwing",
-    Callback = function(v)
-        shared.AutoSwing = v
-    end,
+}); do
+    Misc.Button({
+        Text = "Unlock All Island's",
+        Callback = function(v)
+            if not Character or not Root then return end;
+            for i, v in next, Workspace.islandUnlockParts:GetChildren() do
+                if v:FindFirstChildWhichIsA("TouchTransmitter") then
+                    local Transmitter = v:FindFirstChildWhichIsA("TouchTransmitter");
+                    
+                    firetouchinterest(Root, Transmitter.Parent, 0);
+                    wait(0.1);
+                    firetouchinterest(Root, Transmitter.Parent, 1);
+                end;
+            end;
+        end;
+    });
     
-    Enabled = false
-})
-
-local AutoSell = Main.Toggle({
-    Text = "AutoSell",
-    Callback = function(v)
-        shared.AutoSell = v
-    end,
+    Misc.Button({
+        Text = "Open All Chest's",
+        Callback = function(v)
+            for i, v in next, Workspace:GetChildren() do
+                if (v:FindFirstChild("Chest") and (v:FindFirstChild("circleInner") and v.circleInner:FindFirstChildWhichIsA("TouchTransmitter"))) then
+                    local Transmitter = v.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
+                    
+                    firetouchinterest(Root, Transmitter.Parent, 0);
+                    wait(0.1);
+                    firetouchinterest(Root, Transmitter.Parent, 1);
+                end;
+            end;
+        end;
+    });
     
-    Enabled = false
-})
-
-local AutoBuySwords = Main.Toggle({
-    Text = "AutoBuySwords",
-    Callback = function(v)
-        shared.AutoBuySwords = v
-    end,
-    
-    Enabled = false
-})
-
-local AutoBuyBelts = Main.Toggle({
-    Text = "AutoBuyBelts",
-    Callback = function(v)
-        shared.AutoBuyBelts = v
-    end,
-    
-    Enabled = false
-})
-
-local AutoRankUp = Main.Toggle({
-    Text = "AutoRankUp",
-    Callback = function(v)
-        shared.AutoRankUp = v
-    end,
-    
-    Enabled = false
-})
-
-
---> Modules <--
-
-local AutoFarmCoins = Modules.Toggle({
-    Text = "AutoFarm Coins",
-    Callback = function(v)
-        shared.AutoFarmCoins = v
-    end,
-    
-    Enabled = false
-})
-
-local AutoFarmChi = Modules.Toggle({
-    Text = "AutoFarm Chi",
-    Callback = function(v)
-        shared.AutoFarmChi = v
-    end,
-    
-    Enabled = false
-})
-
-local AutoFarmHoops = Modules.Toggle({
-    Text = "AutoFarm Hoops",
-    Callback = function(v)
-        shared.AutoFarmHoops = v
-    end,
-    
-    Enabled = false
-})
-
---> Misc <--
-
-local UnlockAll = Misc.Button({
-    Text = "Unlock All Island's",
-    Callback = function(v)
-        if not Character then return end
-
-        local Parts = s.Workspace.islandUnlockParts
-        
-        for i, p in next, Parts:GetDescendants() do
-            if firetouchinterest and p:IsA("TouchTransmitter") then
-                firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, p.Parent, 0)
-                wait()
-                firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, p.Parent, 1)
-            end
-        end
-    end
-})
-
-local HidePopUps = Misc.Button({
-    Text = "Hide PopUps",
-    Callback = function(v)
-        if not Character then return end
-        
-        Player.PlayerGui.statEffectsGui:Destroy()
-    end
-})
+    Misc.Button({
+        Text = "Hide Pop-Ups",
+        Callback = function(v)
+            if Player.PlayerGui:FindFirstChild("statEffectsGui") then
+                Player.PlayerGui.statEffectsGui:Destroy();
+            end;
+        end;
+    });
+end;
 
 --> Main Loop <--
+pcall(function() if shared.loop then shared.loop:Disconnect() end end);
 
+wait()
 coroutine.wrap(function()
-    while wait() do
-        if not Character then return end
+    shared.loop = Heartbeat:Connect(function()
+        if not Character or not Root then return end;
         
-        if (shared.AutoSwing) then
-            for i, v in next, Player.Backpack:GetDescendants() do
-                if v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain") then
-                    Character.Humanoid:EquipTool(v)
-                end
-            end
+        if shared.AutoSwing then
+            if not Player:FindFirstChild("ninjaEvent") then return end;
             
-            Player.ninjaEvent:FireServer("swingKatana")
-        end
+            for i, v in next, Player.Backpack:GetChildren() do
+                if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
+                    coroutine.wrap(Humanoid.EquipTool)(Character.Humanoid, v);
+                end;
+            end;
             
-        if (shared.AutoSell) then
-            local SellArea = s.Workspace.sellAreaCircles["sellAreaCircle16"]
-            
-            for i, v in next, SellArea:GetDescendants() do
-                if firetouchinterest and v:IsA("TouchTransmitter") then
-                    firetouchinterest(Character.HumanoidRootPart, v.Parent, 0)
-                    wait()
-                    firetouchinterest(Character.HumanoidRootPart, v.Parent, 1)
-                end
-            end
-        end
-            
-        if (shared.AutoBuyBelts) then
-            Player.ninjaEvent:FireServer("buyAllBelts", "Inner Peace Island")
-        end
-            
-        if (shared.AutoBuySwords) then
-            Player.ninjaEvent:FireServer("buyAllSwords", "Inner Peace Island")
-        end
+            if Character:FindFirstChildWhichIsA("Tool") then
+                coroutine.wrap(ninjaEvent)("swingKatana");
+            end;
+        end;
         
-        if (shared.AutoFarmHoops) then
-            for i, h in next, s.Workspace.Hoops:GetDescendants() do
-                if firetouchinterest and h:IsA("TouchTransmitter") then
-                    firetouchinterest(Character.HumanoidRootPart, h.Parent, 0)
-                    wait()
-                    firetouchinterest(Character.HumanoidRootPart, h.Parent, 1)
-                end
-            end
-        end
+        if shared.AutoSell then -- had the idea that this was gonna be super cool! turned out like dog shit.
+            sellNin(shared.SellAtMaxNin);
+        end;
+            
+        if shared.AutoBuyBelts then
+            coroutine.wrap(ninjaEvent)("buyAllBelts");
+        end;
         
-        if (shared.AutoFarmCoins) then
-            local Coins = Functions:Find(s.Workspace.spawnedCoins.Valley, "Coin")
-            local ds = (Character.HumanoidRootPart.Position - Coins.Position).Magnitude / 1500
-                
-            if Coins:IsA("Part") then
-                Character.Humanoid:ChangeState(11)
-                    
-                Functions:Tween(Character.HumanoidRootPart, {CFrame = CFrame.new(Coins.Position)}, ds, Enum.EasingStyle.Sine)
-            end
-        end
+        if shared.AutoBuySwords then
+            coroutine.wrap(ninjaEvent)("buyAllSwords");
+        end;
+        
+        if shared.AutoBuyShurikens then
+            coroutine.wrap(ninjaEvent)("buyAllShurikens");
+        end;
+
+        if shared.AutoBuySkills then
+            coroutine.wrap(ninjaEvent)("buyAllSkills");
+        end;
+        
+        if shared.AutoFarmCoins then
+            local Coins = Find(Workspace.spawnedCoins.Valley, "Coin");
             
-        if (shared.AutoFarmChi) then
-            local Chi = Functions:Find(s.Workspace.spawnedCoins.Valley, "Chi")
-            local ds = (Character.HumanoidRootPart.Position - Chi.Position).Magnitude / 1500
-                
-            if Chi:IsA("Part") then
-                Character.Humanoid:ChangeState(11)
-                    
-                Functions:Tween(Character.HumanoidRootPart, {CFrame = CFrame.new(Chi.Position)}, ds, Enum.EasingStyle.Sine) 
-            end
-        end
+            if Coins then
+                Character.Humanoid:ChangeState(11);
+                coroutine.wrap(Tween)(Root, {CFrame = CFrame.new(Coins.Position)}, (Root.Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+            end;
+        end;
+        
+        if shared.AutoFarmChi then
+            local Chi = Find(Workspace.spawnedCoins.Valley, "Chi");
             
-        if (shared.AutoRankUp) then
-            for i, v in next, RankList do
-                Player.ninjaEvent:FireServer("buyRank", v)
-            end
-        end
+            if Chi then
+                Humanoid:ChangeState(11);
+                coroutine.wrap(Tween)(Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+            end;
+        end;
+            
+        if shared.AutoRankUp then
+            for i = 1, #ReplicatedStorage.Ranks.Ground:GetChildren() do
+                coroutine.wrap(ninjaEvent)("buyRank", ReplicatedStorage.Ranks.Ground:GetChildren()[i].Name);
+            end;
+        end;
         
         wait()
-    end
-end)()
+    end);
+end)();
