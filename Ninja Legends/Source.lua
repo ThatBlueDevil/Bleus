@@ -327,7 +327,5 @@ coroutine.wrap(function()
                 task.spawn(ninjaEvent, "buyRank", ReplicatedStorage.Ranks.Ground:GetChildren()[i].Name);
             end;
         end;
-        
-        wait()
     end);
 end)();
