@@ -57,7 +57,7 @@ local Find, Tween, ninjaEvent, sellNin; do
             if (v.Name:find(Name) and (v.Transparency and v.Transparency ~= 1)) then
                 local Magnitude = Player:DistanceFromCharacter(v.Position);
                 
-                if Magnitude <= d then
+                if (Magnitude < d) then
                     d = Magnitude;
                     e = v;
                 end;
@@ -103,11 +103,17 @@ local Find, Tween, ninjaEvent, sellNin; do
 end;
 
 -- Anti-AFK.
-Player.Idled:Connect(function()
-   VirtualUser:Button2Down(Vector2.new(0,0), CurrentCamera.CFrame);
-   wait(1);
-   VirtualUser:Button2Up(Vector2.new(0,0), CurrentCamera.CFrame);
-end);
+if getconnections then
+    for i = 1, #getconnections(Player.Idled) do
+        getconnections(Player.Idled)[i]:Disable();
+    end;
+else
+    Player.Idled:Connect(function()
+       VirtualUser:Button2Down(Vector2.new(0,0), CurrentCamera.CFrame);
+       wait(1);
+       VirtualUser:Button2Up(Vector2.new(0,0), CurrentCamera.CFrame);
+    end);
+end
 
 -- Tabs and Toggles.
 shared.SellAtMaxNin = false
@@ -269,33 +275,33 @@ coroutine.wrap(function()
             
             for i, v in next, Player.Backpack:GetChildren() do
                 if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
-                    coroutine.wrap(Humanoid.EquipTool)(Character.Humanoid, v);
+                    task.spawn(Humanoid.EquipTool, Character.Humanoid, v);
                 end;
             end;
             
             if Character:FindFirstChildWhichIsA("Tool") then
-                coroutine.wrap(ninjaEvent)("swingKatana");
+                task.spawn(ninjaEvent, "swingKatana");
             end;
         end;
         
         if shared.AutoSell then -- had the idea that this was gonna be super cool! turned out like dog shit.
-            sellNin(shared.SellAtMaxNin);
+            task.spawn(sellNin, shared.SellAtMaxNin);
         end;
             
         if shared.AutoBuyBelts then
-            coroutine.wrap(ninjaEvent)("buyAllBelts");
+            task.spawn(ninjaEvent, "buyAllBelts");
         end;
         
         if shared.AutoBuySwords then
-            coroutine.wrap(ninjaEvent)("buyAllSwords");
+            task.spawn(ninjaEvent, "buyAllSwords");
         end;
         
         if shared.AutoBuyShurikens then
-            coroutine.wrap(ninjaEvent)("buyAllShurikens");
+            task.spawn(ninjaEvent, "buyAllShurikens");
         end;
 
         if shared.AutoBuySkills then
-            coroutine.wrap(ninjaEvent)("buyAllSkills");
+            task.spawn(ninjaEvent, "buyAllSkills");
         end;
         
         if shared.AutoFarmCoins then
@@ -303,7 +309,7 @@ coroutine.wrap(function()
             
             if Coins then
                 Character.Humanoid:ChangeState(11);
-                coroutine.wrap(Tween)(Root, {CFrame = CFrame.new(Coins.Position)}, (Root.Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                task.spawn(Tween, Root, {CFrame = CFrame.new(Coins.Position)}, (Root.Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
@@ -312,13 +318,13 @@ coroutine.wrap(function()
             
             if Chi then
                 Humanoid:ChangeState(11);
-                coroutine.wrap(Tween)(Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
             
         if shared.AutoRankUp then
             for i = 1, #ReplicatedStorage.Ranks.Ground:GetChildren() do
-                coroutine.wrap(ninjaEvent)("buyRank", ReplicatedStorage.Ranks.Ground:GetChildren()[i].Name);
+                task.spawn(ninjaEvent, "buyRank", ReplicatedStorage.Ranks.Ground:GetChildren()[i].Name);
             end;
         end;
         
