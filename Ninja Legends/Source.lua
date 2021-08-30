@@ -360,7 +360,7 @@ coroutine.wrap(function()
             local Chi = Find(Workspace.spawnedCoins.Valley, "Chi");
             
             if Chi then
-                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+                Humanoid:ChangeState(11);
                 task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
