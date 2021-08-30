@@ -73,23 +73,19 @@ local Find, Tween, ninjaEvent, sellNin, getLastRank; do
     	return Tweeb;
     end;
     
-    function ninjaEvent(Type)
+    function ninjaEvent(...)
         if not Player.ninjaEvent then return end;
-        Player.ninjaEvent:FireServer(Type, "Blazing Vortex Island");
-    end;
-    
-    function getCurrency(tblval)
-        local a = Player.PlayerGui.gameGui.currencyFrame.strengthFrame.amountLabel.Text:split("/")[tblval];
-        return tonumber(a:match("[%d]+"));
+        Player.ninjaEvent:FireServer(...);
     end;
     
     function sellNin(lol) -- please lets just not...
+        local Menu = Player.PlayerGui.gameGui.maxNinjitsuMenu;
         local SellCircle = Workspace.sellAreaCircles.sellAreaCircle16.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
+        
         local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
-        if not SellCircle or not Root then return end;
         
         if lol then
-            if (getCurrency(1) >= getCurrency(2)) then
+            if (Menu.Visible) then
                 firetouchinterest(Root, SellCircle.Parent, 0);
                 wait(0.1);
                 firetouchinterest(Root, SellCircle.Parent, 1);
@@ -128,8 +124,8 @@ end;
 
 -- Tabs and Toggles.
 shared._Chips = {
-    SellAtMaxNin = false,
-    HideWeapon = false
+    SellAtMaxNin,
+    HideWeapon
 };
 
 local Main = Library.New({
@@ -308,8 +304,6 @@ pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
 coroutine.wrap(function()
     shared._loop = RenderStepped:Connect(function()
-        RenderStepped:Wait();
-        
         if shared.AutoSwing then
             local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
             local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
@@ -349,19 +343,19 @@ coroutine.wrap(function()
         end;
             
         if shared.AutoBuyBelts then
-            task.spawn(ninjaEvent, "buyAllBelts");
+            task.spawn(ninjaEvent, "buyAllBelts", "Blazing Vortex Island");
         end;
         
         if shared.AutoBuySwords then
-            task.spawn(ninjaEvent, "buyAllSwords");
+            task.spawn(ninjaEvent, "buyAllSwords", "Blazing Vortex Island");
         end;
         
         if shared.AutoBuyShurikens then
-            task.spawn(ninjaEvent, "buyAllShurikens");
+            task.spawn(ninjaEvent, "buyAllShurikens", "Blazing Vortex Island");
         end;
 
         if shared.AutoBuySkills then
-            task.spawn(ninjaEvent, "buyAllSkills");
+            task.spawn(ninjaEvent, "buyAllSkills", "Blazing Vortex Island");
         end;
         
         if shared.AutoFarmCoins then
@@ -381,9 +375,9 @@ coroutine.wrap(function()
                 task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
-            
+        
         if shared.AutoRankUp then
-            task.spawn(ninjaEvent, "buyRank", getLastRank());
+            task.spawn(ninjaEvent, "buyRank", tostring(getLastRank()));
         end;
     end);
 end)();
