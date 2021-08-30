@@ -1,3 +1,2 @@
-## Bugs: 
-  1: If you die sometimes the script will stop working.
-  2: You may get kicked for an unexpected error.
+## 30/08/2021 5:52 AM | Notes: 
+  Pushed an update that should fix the problem with respawning. also added hide weapon!
