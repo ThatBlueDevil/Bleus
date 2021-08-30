@@ -47,8 +47,8 @@ end;
 -- thing for rank check.
 Character.HumanoidRootPart.CFrame = CFrame.new(120, 3, 32);
 
--- Find Close Objects | Tweening | ninjaEvents | getCurrency | sellNin | getLastRank.
-local Find, Tween, ninjaEvent, sellNin, getLastRank; do
+-- Functions consist of: Find | Tween | ninjaEvent | sellNin | getLastRank.
+local Find, Tween, ninjaEvent, sellNin, getItem; do
     function Find(Directory, Name)
         local d, e = math.huge;
         
@@ -78,14 +78,14 @@ local Find, Tween, ninjaEvent, sellNin, getLastRank; do
         Player.ninjaEvent:FireServer(...);
     end;
     
-    function sellNin(lol) -- please lets just not...
+    function sellNin(t) -- please lets just not...
         local Menu = Player.PlayerGui.gameGui.maxNinjitsuMenu;
         local SellCircle = Workspace.sellAreaCircles.sellAreaCircle16.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
         
         local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
         
-        if lol then
-            if (Menu.Visible) then
+        if t then
+            if Menu.Visible then
                 firetouchinterest(Root, SellCircle.Parent, 0);
                 wait(0.1);
                 firetouchinterest(Root, SellCircle.Parent, 1);
@@ -97,15 +97,23 @@ local Find, Tween, ninjaEvent, sellNin, getLastRank; do
         end;
     end;
     
-    function getLastRank() -- very late at night coding
-        local Stored = { };
-        for i, v in next, Player.PlayerGui.gameGui.itemsShopMenu.menus.ranksMenu:GetChildren() do
-            if (v:FindFirstChild("swordButton") and not v.swordButton.lockImage.Visible and not v.swordButton.equippedLabel.Visible) and v:FindFirstChild("whichRank") then
-                Stored[#Stored + 1] = v.whichRank.Value
-            end
-        end
+    function getItem(Option) -- lazy ass coding I dont wanna make better.
+        local dir; do
+            if (Option == "Weapons") then
+                dir = Player.PlayerGui.gameGui.itemsShopMenu.menus.swordsMenu;
+            else
+                dir = Player.PlayerGui.gameGui.itemsShopMenu.menus.ranksMenu;
+            end;
+        end;
         
-        return Stored[#Stored]
+        local Results = { };
+        for i, v in next, dir:GetChildren() do
+            if v:IsA("Frame") and (v:FindFirstChild("swordButton") and v:FindFirstChild("lockImage", true) and v:FindFirstChild("equippedLabel", true) and not v.swordButton.lockImage.Visible and not v.swordButton.equippedLabel.Visible) then
+                Results[#Results + 1] = v:FindFirstChildWhichIsA("ObjectValue").Value
+            end;
+        end;
+        
+        return Results[#Results]
     end;
 end;
 
@@ -122,24 +130,35 @@ else
     end);
 end;
 
--- Tabs and Toggles.
-shared._Chips = {
+-- Flags and Chips.
+shared._Flags, shared._Chips = {
+    AutoSwing,
+    AutoSell,
+    AutoBuySwords,
+    AutoBuyBelts,
+    AutoBuyShurikens,
+    AutoBuySkills,
+    AutoRankUp,
+    AutoFarmCoins,
+    AutoFarmChi
+}, {
     SellAtMaxNin,
-    HideWeapon
+    HideWeapon  
 };
 
+-- Library Initalation.
 local Main = Library.New({
     Title = "Main";
 }); do
     Main.Toggle({
         Text = "Auto Swing",
         Callback = function(v)
-            shared.AutoSwing = v;
+            shared._Flags.AutoSwing = v;
         end,
         
         Enabled = false;
     });
-
+    
     Main.ChipSet({
         Text = "pop",
         Callback = function(Chip)
@@ -154,7 +173,7 @@ local Main = Library.New({
     Main.Toggle({
         Text = "Auto Sell",
         Callback = function(v)
-            shared.AutoSell = v;
+            shared._Flags.AutoSell = v;
         end,
         
         Enabled = false;
@@ -174,7 +193,7 @@ local Main = Library.New({
     Main.Toggle({
         Text = "Auto Buy Swords",
         Callback = function(v)
-            shared.AutoBuySwords = v;
+            shared._Flags.AutoBuySwords = v;
         end,
         
         Enabled = false;
@@ -183,7 +202,7 @@ local Main = Library.New({
     Main.Toggle({
         Text = "Auto Buy Belts",
         Callback = function(v)
-            shared.AutoBuyBelts = v;
+            shared._Flags.AutoBuyBelts = v;
         end,
         
         Enabled = false;
@@ -192,7 +211,7 @@ local Main = Library.New({
     Main.Toggle({
         Text = "Auto Buy Shurikens",
         Callback = function(v)
-            shared.AutoBuyShurikens = v;
+            shared._Flags.AutoBuyShurikens = v;
         end,
         
         Enabled = false;
@@ -201,7 +220,7 @@ local Main = Library.New({
     Main.Toggle({
         Text = "Auto Buy Skills",
         Callback = function(v)
-            shared.AutoBuySkills = v;
+            shared._Flags.AutoBuySkills = v;
         end,
         
         Enabled = false;
@@ -210,7 +229,7 @@ local Main = Library.New({
     Main.Toggle({
         Text = "Auto RankUp",
         Callback = function(v)
-            shared.AutoRankUp = v;
+            shared._Flags.AutoRankUp = v;
         end,
         
         Enabled = false;
@@ -223,7 +242,7 @@ local Farming = Library.New({
     Farming.Toggle({
         Text = "Farm Coins",
         Callback = function(v)
-            shared.AutoFarmCoins = v;
+            shared._Flags.AutoFarmCoins = v;
         end,
         
         Enabled = false;
@@ -232,7 +251,7 @@ local Farming = Library.New({
     Farming.Toggle({
         Text = "Farm Chi",
         Callback = function(v)
-            shared.AutoFarmChi = v;
+            shared._Flags.AutoFarmChi = v;
         end,
         
         Enabled = false;
@@ -299,85 +318,86 @@ local Misc = Library.New({
     });
 end;
 
---> Main Loop <--
+-- Main Loop.
 pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
-coroutine.wrap(function()
-    shared._loop = RenderStepped:Connect(function()
-        if shared.AutoSwing then
-            local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
-            local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
-            
+wait()
+task.spawn(function()
+    shared._loop = Stepped:Connect(function()
+        local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
+        local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
+        
+        if shared._Flags.AutoSwing then
             if not Player:FindFirstChild("ninjaEvent") then return end;
             
             for i, v in next, Player.Backpack:GetChildren() do
                 if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
-                    task.spawn(Humanoid.EquipTool, Humanoid, v);
+                    Humanoid:EquipTool(v);
                 end;
             end;
             
             if Character:FindFirstChildWhichIsA("Tool") then
-                task.spawn(ninjaEvent, "swingKatana");
+                ninjaEvent("swingKatana");
                 
                 if shared._Chips.HideWeapon then
                     local Weapon = Character:FindFirstChildWhichIsA("Tool");
                     for i = 1, #Weapon:GetChildren() do
                         local v = Weapon:GetChildren()[i];
                         
-                        if v:FindFirstChildWhichIsA("ParticleEmitter") or v:FindFirstChildWhichIsA("PointLight") or v:FindFirstChildWhichIsA("Trail") then
-                            task.defer(v.Destroy, v)
+                        if (v:FindFirstChildWhichIsA("ParticleEmitter") or v:FindFirstChildWhichIsA("PointLight") or v:FindFirstChildWhichIsA("Trail")) then
+                            task.defer(v.Destroy, v);
                         elseif v:IsA("MeshPart") then
                             v.Transparency = 1;
                         end;
                     end;
                     
                     if Character:FindFirstChild("swordCloneModel") then
-                        task.defer(Character.swordCloneModel.Destroy, Character.swordCloneModel)
+                        task.defer(Character.swordCloneModel.Destroy, Character.swordCloneModel);
                     end
                 end;
             end;
         end;
         
-        if shared.AutoSell then -- had the idea that this was gonna be super cool! turned out like dog shit.
-            task.spawn(sellNin, shared._Chips.SellAtMaxNin);
-        end;
-            
-        if shared.AutoBuyBelts then
-            task.spawn(ninjaEvent, "buyAllBelts", "Blazing Vortex Island");
+        if shared._Flags.AutoSell then -- had the idea that this was gonna be super cool! turned out like dog shit.
+            sellNin(shared._Chips.SellAtMaxNin);
         end;
         
-        if shared.AutoBuySwords then
-            task.spawn(ninjaEvent, "buyAllSwords", "Blazing Vortex Island");
+        if shared._Flags.AutoBuyBelts then
+            ninjaEvent("buyAllBelts", "Blazing Vortex Island");
         end;
         
-        if shared.AutoBuyShurikens then
-            task.spawn(ninjaEvent, "buyAllShurikens", "Blazing Vortex Island");
+        if shared._Flags.AutoBuySwords then
+            ninjaEvent("buySword", tostring(getItem("Weapons")));
+        end;
+        
+        if shared._Flags.AutoBuyShurikens then
+            ninjaEvent("buyAllShurikens", "Blazing Vortex Island");
         end;
 
-        if shared.AutoBuySkills then
-            task.spawn(ninjaEvent, "buyAllSkills", "Blazing Vortex Island");
+        if shared._Flags.AutoBuySkills then
+            ninjaEvent("buyAllSkills", "Blazing Vortex Island");
         end;
         
-        if shared.AutoFarmCoins then
+        if shared._Flags.AutoFarmCoins then
             local Coins = Find(Workspace.spawnedCoins.Valley, "Coin");
             
             if Coins then
                 Humanoid:ChangeState(11);
-                task.spawn(Tween, Root, {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
+                Tween(Root, {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
-        if shared.AutoFarmChi then
+        if shared._Flags.AutoFarmChi then
             local Chi = Find(Workspace.spawnedCoins.Valley, "Chi");
             
             if Chi then
                 Humanoid:ChangeState(11);
-                task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
+                Tween(Root, {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
-        if shared.AutoRankUp then
-            task.spawn(ninjaEvent, "buyRank", tostring(getLastRank()));
+        if shared._Flags.AutoRankUp then
+            ninjaEvent("buyRank", tostring(getItem()));
         end;
     end);
-end)();
+end);
