@@ -52,7 +52,7 @@ local Find, Tween, ninjaEvent, sellNin; do
             if (v.Name:find(Name) and (v.Transparency and v.Transparency ~= 1)) then
                 local Magnitude = Player:DistanceFromCharacter(v.Position);
                 
-                if (Magnitude < d) then
+                if Magnitude < d then
                     d = Magnitude;
                     e = v;
                 end;
@@ -109,7 +109,7 @@ else
        wait(1);
        VirtualUser:Button2Up(Vector2.new(0, 0), CurrentCamera.CFrame);
     end);
-end
+end;
 
 -- Tabs and Toggles.
 shared._Chips = {
@@ -352,7 +352,7 @@ coroutine.wrap(function()
             
             if Coins then
                 Humanoid:ChangeState(11);
-                task.spawn(Tween, Root, {CFrame = CFrame.new(Coins.Position)}, (Root.Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                task.spawn(Tween, Root, {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
@@ -361,7 +361,7 @@ coroutine.wrap(function()
             
             if Chi then
                 Humanoid:ChangeState(11);
-                task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
             
