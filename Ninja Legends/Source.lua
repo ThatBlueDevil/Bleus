@@ -294,11 +294,14 @@ pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 coroutine.wrap(function()
     shared._loop = RenderStepped:Connect(function()
         if shared.AutoSwing then
+            local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
+            local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
+            
             if not Player:FindFirstChild("ninjaEvent") then return end;
             
             for i, v in next, Player.Backpack:GetChildren() do
                 if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
-                    task.spawn(Character.Humanoid.EquipTool, (Character.Humanoid or Character:WaitForChild("Humanoid")), v);
+                    task.spawn(Humanoid.EquipTool, Humanoid, v);
                 end;
             end;
             
@@ -348,8 +351,8 @@ coroutine.wrap(function()
             local Coins = Find(Workspace.spawnedCoins.Valley, "Coin");
             
             if Coins then
-                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
-                task.spawn(Tween, (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Coins.Position)}, ((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                Humanoid:ChangeState(11);
+                task.spawn(Tween, Root, {CFrame = CFrame.new(Coins.Position)}, (Root.Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
@@ -358,7 +361,7 @@ coroutine.wrap(function()
             
             if Chi then
                 (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
-                task.spawn(Tween, (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Chi.Position)}, ((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
             
