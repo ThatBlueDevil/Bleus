@@ -21,6 +21,7 @@ local s = setmetatable({}, {
 })
 
 -- Localization.
+repeat wait() until (game and game:IsLoaded()) and (s.Players.LocalPlayer and s.Players.LocalPlayer.Character);
 local Player = s.Players.LocalPlayer;
 local Character = Player.Character or Player.CharacterAdded:Wait();
 
@@ -43,7 +44,10 @@ if not firetouchinterest then
     return;
 end;
 
--- Find Close Objects | Tweening | ninjaEvents | getCurrency | sellNin
+-- thing for rank check.
+Character.HumanoidRootPart.CFrame = CFrame.new(120, 3, 32);
+
+-- Find Close Objects | Tweening | ninjaEvents | getCurrency | sellNin | getLastRank.
 local Find, Tween, ninjaEvent, sellNin; do
     function Find(Directory, Name)
         local d, e = math.huge;
@@ -95,6 +99,17 @@ local Find, Tween, ninjaEvent, sellNin; do
             wait(0.1);
             firetouchinterest(Root, SellCircle.Parent, 1);
         end;
+    end;
+    
+    function getLastRank() -- very late at night coding
+        local Stored = { };
+        for i, v in next, Player.PlayerGui.gameGui.itemsShopMenu.menus.ranksMenu:GetChildren() do
+            if (v:FindFirstChild("swordButton") and not v.swordButton.lockImage.Visible and not v.swordButton.equippedLabel.Visible) and v:FindFirstChild("whichRank") then
+                Stored[#Stored + 1] = v.whichRank.Value
+            end
+        end
+        
+        return Stored[#Stored]
     end;
 end;
 
@@ -293,6 +308,8 @@ pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
 coroutine.wrap(function()
     shared._loop = RenderStepped:Connect(function()
+        RenderStepped:Wait();
+        
         if shared.AutoSwing then
             local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
             local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
@@ -366,9 +383,7 @@ coroutine.wrap(function()
         end;
             
         if shared.AutoRankUp then
-            for i = 1, #ReplicatedStorage.Ranks.Ground:GetChildren() do
-                task.spawn(ninjaEvent, "buyRank", ReplicatedStorage.Ranks.Ground:GetChildren()[i].Name);
-            end;
+            task.spawn(ninjaEvent, "buyRank", getLastRank());
         end;
     end);
 end)();
