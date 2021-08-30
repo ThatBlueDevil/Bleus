@@ -1,1 +1,4 @@
-## Disclaimer: If you die sometimes the script will stop working, if this occurs please re-run it! ##
+## Bugs: 
+  If you die sometimes the script will stop working.
+  You may get kicked for an unexpected error.
+##
