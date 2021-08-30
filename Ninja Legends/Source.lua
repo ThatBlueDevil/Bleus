@@ -48,7 +48,7 @@ end;
 Character.HumanoidRootPart.CFrame = CFrame.new(120, 3, 32);
 
 -- Find Close Objects | Tweening | ninjaEvents | getCurrency | sellNin | getLastRank.
-local Find, Tween, ninjaEvent, sellNin; do
+local Find, Tween, ninjaEvent, sellNin, getLastRank; do
     function Find(Directory, Name)
         local d, e = math.huge;
         
