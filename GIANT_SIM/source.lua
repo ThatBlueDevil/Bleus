@@ -1,200 +1,131 @@
-local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+--[[ Author: Isela --]]
 
-local XX =
-    Material.Load(
-    {
-        Title = "Giant Simulator  ―  Bleus",
-        Style = 1,
-        SizeX = 400,
-        SizeY = 400,
-        Theme = "Aqua",
-        ColorOverrides = {
-            MainFrame = Color3.fromRGB(35,35,35)
-        }
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))().Load({
+    Title = "Giant Simulator  ―  Bleus",
+    Style = 1,
+    SizeX = 400,
+    SizeY = 400,
+    Theme = "Aqua",
+    ColorOverrides = {
+        MainFrame = Color3.fromRGB(30, 30, 30)
     }
-)
+})
 
-local s =
-    setmetatable(
-    {},
-    {
-        __index = function(self, service)
-            return game:GetService(service)
-        end,
-        __newindex = function(self, key)
-            self[key] = nil
-        end
-    }
-)
-
-local User = s["Players"].LocalPlayer
-local ReplicatedStorage = s["ReplicatedStorage"]
-
-local GoogleRemote = ReplicatedStorage.ReportGoogleAnalyticsEvent
-
-hookfunction(GoogleRemote.FireServer, function()
-   return nil 
-end)
-
-function FindFolder(name)
-    for _,f in next, s["Workspace"].Scene:GetChildren() do
-        if string.find(f.Name, name) then
-           return f
-        end
+local s = setmetatable({}, {
+    __index = function(self, key)
+        return game:GetService(key)
     end
-end
+})
 
-function Eggs()
-    d = math.huge
-    e = nil
+-- Localization.
+local Player = s.Players.LocalPlayer;
+local Character = Player.Character or Player.CharacterAdded:Wait();
+
+Player.CharacterAdded:Connect(function(char)
+    Character = char;
+end);
+
+local Workspace = s.Workspace;
+local TweenService = s.TweenService;
+local RunService = s.RunService;
+local VirtualUser = s.VirtualUser;
+local ReplicatedStorage = s.ReplicatedStorage;
+
+local Camera = Workspace.CurrentCamera;
+local Heartbeat, Stepped, RenderStepped = RunService.Heartbeat, RunService.Stepped, RunService.RenderStepped;
+
+-- Flags / oh my god I need a ui lib with actual flags :sob:.
+shared._Flags = {
+    AutoFarm,
+    AutoJump,
+    AutoAttack
+};
+
+-- Anti-AFK and Anti-Logging(idk if they still have it)
+if getconnections then
+    for i = 1, #getconnections(Player.Idled) do
+        getconnections(Player.Idled)[i]:Disable();
+    end;
+else
+    Player.Idled:Connect(function()
+       VirtualUser:Button2Down(Vector2.new(0, 0), CurrentCamera.CFrame);
+       wait(1);
+       VirtualUser:Button2Up(Vector2.new(0, 0), CurrentCamera.CFrame);
+    end);
+end;
+
+hookfunction(ReplicatedStorage.ReportGoogleAnalyticsEvent.FireServer, function()
+   return nil;
+end);
+
+-- Functions consist of: Tween | getNodeFolder | getANode.
+local Tween, getNodeFolder, getANode; do
+    function Tween(Obj, Properties, Time)
+        local Tweeb = TweenService:Create(Obj, TweenInfo.new(Time), Properties);
+        Tweeb:Play();
+        
+    	return Tweeb;
+    end;
+
+    function getNodeFolder()
+        for _, f in next, Workspace.Scene:GetChildren() do
+            if type(tonumber(f.Name)) == "number" then
+                return f;
+            end;
+        end;
+    end;
     
-    local Egg = {}
-    
-    for i, v in ipairs(FindFolder("147"):GetChildren()) do
-        if (v:FindFirstChild("Prefab") and v["Prefab"].Position ~= nil) then
-            local Magnitude = (User.Character.HumanoidRootPart.Position - v.Position).Magnitude
-            
-            if (Magnitude < d) then
-                d = Magnitude
-                e = v
-            end
-        end
-    end
-    
-    return e
-end
+    function getANode()
+        local d, e = math.huge;
+        
+        for i, v in next, getNodeFolder():GetChildren() do
+            if (v:FindFirstChild("Prefab") and v.Prefab.Position) then
+                local Magnitude = Player:DistanceFromCharacter(v.Position);
+                
+                if (Magnitude < d) then
+                    d = Magnitude;
+                    e = v;
+                end;
+            end;
+        end;
+        
+        return e;
+    end;
+end;
 
--- GUI
-
-local Main =
-    XX.New(
-    {
-        Title = "Main"
-    }
-)
-
-local Event =
-    XX.New(
-    {
-            Title = "Event"
-    }
-)
-
-local lols =
-    Main.Toggle(
-    {
+-- Library Initalation.
+local Main = Library.New({
+    Title = "Main";
+}); do
+    Main.Toggle({
         Text = "Auto Farm",
-        Callback = function(Value)
-            _G.AutoFarm = Value
-            while _G.AutoFarm do
-                
-            local Egg = Eggs()
-                
-            if (Egg) then
-                User.Character.Humanoid:ChangeState(11)
-                
-                if (User.Character.HumanoidRootPart.Position - Egg.Position).Magnitude > math.huge then TweenSpeed = 1 else TweenSpeed = .1 end
-                
-                tweenService, tweenInfo = s["TweenService"], TweenInfo.new(TweenSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-                T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = CFrame.new(Egg.Position)})
-                T:Play()
-                end
-                wait()
-            end
-        end,
-        Enabled = false
-    }
-)
-
-local blah =
-    Main.Toggle(
-    {
-        Text = "Auto Jump",
-        Callback = function(Value)
-            _G.AutoJump = Value
-            while _G.AutoJump do
-                local Humanoid = User.Character.Humanoid
-                Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                
-                wait(.6)
-            end
-        end,
-        Enabled = false
-    }
-)
-
-local lols =
-    Main.Toggle(
-    {
-        Text = "Auto Attack",
-        Callback = function(Value)
-            _G.AutoAttack = Value
-            while _G.AutoAttack do
-                s["ReplicatedStorage"].Aero.AeroRemoteServices.GameService.WeaponAttackStart:FireServer()
-                wait(.65)
-                s["ReplicatedStorage"].Aero.AeroRemoteServices.GameService.WeaponAnimComplete:FireServer()
-                
-                wait()
-            end
-        end,
-        Enabled = false
-    }
-)
-
---[[
-
-finding better method lol
-
-local lols =
-    Event.Toggle(
-    {
-        Text = "Slay Borock | Mission",
         Callback = function(v)
-            local Entity = s['Workspace'].NPC.Boss.Borock
-            
-            _G.Enabled = v
-            i = 0
-            
-            while _G.Enabled do
-                if Entity ~= nil and Entity.HumanoidRootPart.Position ~= nil then 
-                    if (User.Character.HumanoidRootPart.Position - Entity.HumanoidRootPart.Position).Magnitude > math.huge then DistanceSpeed = 1 else DistanceSpeed = .1 end
-                    
-                    s["Workspace"].CurrentCamera.CFrame = CFrame.new(User.Character.HumanoidRootPart.Position, Entity.HumanoidRootPart.Position) * CFrame.new(0, 0, 35)
-                    User.Character.Humanoid:ChangeState(11)
-            
-                    tweenService, tweenInfo = s["TweenService"], TweenInfo.new(DistanceSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-                    T = tweenService:Create(User.Character.HumanoidRootPart, tweenInfo, {CFrame = Entity.HumanoidRootPart.CFrame * CFrame.Angles(0 , i , 0) * CFrame.new(0, 0, 45) })
-                    T:Play()
-                    
-                    i = i + math.rad(25)
-                    
-                    wait()
-                end
-            end
+            shared._Flags.AutoFarm = v;
         end,
-        Enabled = false
-    }
-)
+        
+        Enabled = false;
+    });
+end;
 
---]]
+pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
-spawn(function()
-    while true do
-        if (User.Character ~= nil and _G.AutoFarm) then
-            local function NoClipping()
-                if User.Character.Humanoid.RigType == Enum.HumanoidRigType.R6 then
-                    for _, Parts in next, (User.Character:GetDescendants()) do
-                        if (Parts:IsA("BasePart") and Parts.CanCollide == true) then
-                            Parts.CanCollide = false
-                        end
-                    end
-                else
-                    User.Character.Humanoid:ChangeState(11)
-                end
-            end
-            
-            spawn(NoClipping)
-        end
-        wait()
-    end
-end)
+wait();
+task.spawn(function()
+    shared._loop = RenderStepped:Connect(function()
+        local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
+        local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
+        
+        if shared._Flags.AutoFarm then
+            if getANode() then
+                Humanoid:ChangeState(11);
+                task.spawn(Tween, Root, {CFrame = getANode().CFrame}, Player:DistanceFromCharacter(getANode().Position) / 2500, Enum.EasingStyle.Linear);
+            end;
+            --
+            task.spawn(function()
+                ReplicatedStorage.Aero.AeroRemoteServices.GameService.WeaponAttackStart:FireServer();
+                wait(0.65);
+                ReplicatedStorage.Aero.AeroRemoteServices.GameService.WeaponAnimComplete:FireServer();
+            end);
+        end;
+    end);
+end);
