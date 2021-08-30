@@ -3,3 +3,6 @@
   
 ## 30/08/2021 6:14 AM | Notes:
   Added Teleports! and more fixes ig
+
+## 30/08/2021 11:57 PM | Notes:
+  Re-did some methods! No more lag I hope :))
