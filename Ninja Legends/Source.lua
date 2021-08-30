@@ -24,13 +24,8 @@ local s = setmetatable({}, {
 local Player = s.Players.LocalPlayer;
 local Character = Player.Character or Player.CharacterAdded:Wait();
 
-local Humanoid = (Character and Character:FindFirstChildWhichIsA("Humanoid"));
-local Root = (Character and Character:FindFirstChild("HumanoidRootPart"));
-
 Player.CharacterAdded:Connect(function(char)
     Character = char;
-    Humanoid = (char and char:FindFirstChildWhichIsA("Humanoid"));
-    Root = (char and char:FindFirstChild("HumanoidRootPart"));
 end);
 
 local Workspace = s.Workspace;
@@ -48,7 +43,7 @@ if not firetouchinterest then
     return;
 end;
 
--- Find Close Objects | Tweening | ninjaEvents | sellNin | getCurrency
+-- Find Close Objects | Tweening | ninjaEvents | getCurrency | sellNin
 local Find, Tween, ninjaEvent, sellNin; do
     function Find(Directory, Name)
         local d, e = math.huge;
@@ -86,7 +81,8 @@ local Find, Tween, ninjaEvent, sellNin; do
     
     function sellNin(lol) -- please lets just not...
         local SellCircle = Workspace.sellAreaCircles.sellAreaCircle16.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
-        if not SellCircle then return end;
+        local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
+        if not SellCircle or not Root then return end;
         
         if lol then
             if (getCurrency(1) >= getCurrency(2)) then
@@ -109,14 +105,17 @@ if getconnections then
     end;
 else
     Player.Idled:Connect(function()
-       VirtualUser:Button2Down(Vector2.new(0,0), CurrentCamera.CFrame);
+       VirtualUser:Button2Down(Vector2.new(0, 0), CurrentCamera.CFrame);
        wait(1);
-       VirtualUser:Button2Up(Vector2.new(0,0), CurrentCamera.CFrame);
+       VirtualUser:Button2Up(Vector2.new(0, 0), CurrentCamera.CFrame);
     end);
 end
 
 -- Tabs and Toggles.
-shared.SellAtMaxNin = false
+shared._Chips = {
+    SellAtMaxNin = false,
+    HideWeapon = false
+};
 
 local Main = Library.New({
     Title = "Main";
@@ -129,6 +128,17 @@ local Main = Library.New({
         
         Enabled = false;
     });
+
+    Main.ChipSet({
+        Text = "pop",
+        Callback = function(Chip)
+            table.foreach(Chip, function(Option, State)
+                shared._Chips.HideWeapon = State
+            end)
+        end,
+        
+        Options = { ["Hide Weapon"] = false };
+    });
     
     Main.Toggle({
         Text = "Auto Sell",
@@ -140,10 +150,10 @@ local Main = Library.New({
     });
     
     Main.ChipSet({
-        Text = "pop",
+        Text = "pop2",
         Callback = function(Chip)
             table.foreach(Chip, function(Option, State)
-                shared.SellAtMaxNin = State
+                shared._Chips.SellAtMaxNin = State
             end)
         end,
         
@@ -191,7 +201,7 @@ local Main = Library.New({
         Callback = function(v)
             shared.AutoRankUp = v;
         end,
-            
+        
         Enabled = false;
     });
 end;
@@ -263,29 +273,43 @@ local Misc = Library.New({
 end;
 
 --> Main Loop <--
-pcall(function() if shared.loop then shared.loop:Disconnect() end end);
+pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
-wait()
 coroutine.wrap(function()
-    shared.loop = Heartbeat:Connect(function()
-        if not Character or not Root then return end;
-        
+    shared._loop = RenderStepped:Connect(function()
         if shared.AutoSwing then
             if not Player:FindFirstChild("ninjaEvent") then return end;
             
             for i, v in next, Player.Backpack:GetChildren() do
                 if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
-                    task.spawn(Humanoid.EquipTool, Character.Humanoid, v);
+                    task.spawn(Character.Humanoid.EquipTool, (Character.Humanoid or Character:WaitForChild("Humanoid")), v);
                 end;
             end;
             
             if Character:FindFirstChildWhichIsA("Tool") then
                 task.spawn(ninjaEvent, "swingKatana");
+                
+                if shared._Chips.HideWeapon then
+                    local Weapon = Character:FindFirstChildWhichIsA("Tool");
+                    for i = 1, #Weapon:GetChildren() do
+                        local v = Weapon:GetChildren()[i];
+                        
+                        if v:FindFirstChildWhichIsA("ParticleEmitter") or v:FindFirstChildWhichIsA("PointLight") or v:FindFirstChildWhichIsA("Trail") then
+                            task.defer(v.Destroy, v)
+                        elseif v:IsA("MeshPart") then
+                            v.Transparency = 1;
+                        end;
+                    end;
+                    
+                    if Character:FindFirstChild("swordCloneModel") then
+                        task.defer(Character.swordCloneModel.Destroy, Character.swordCloneModel)
+                    end
+                end;
             end;
         end;
         
         if shared.AutoSell then -- had the idea that this was gonna be super cool! turned out like dog shit.
-            task.spawn(sellNin, shared.SellAtMaxNin);
+            task.spawn(sellNin, shared._Chips.SellAtMaxNin);
         end;
             
         if shared.AutoBuyBelts then
@@ -308,8 +332,8 @@ coroutine.wrap(function()
             local Coins = Find(Workspace.spawnedCoins.Valley, "Coin");
             
             if Coins then
-                Character.Humanoid:ChangeState(11);
-                task.spawn(Tween, Root, {CFrame = CFrame.new(Coins.Position)}, (Root.Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+                task.spawn(Tween, (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Coins.Position)}, ((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).Position - Coins.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
@@ -317,8 +341,8 @@ coroutine.wrap(function()
             local Chi = Find(Workspace.spawnedCoins.Valley, "Chi");
             
             if Chi then
-                Humanoid:ChangeState(11);
-                task.spawn(Tween, Root, {CFrame = CFrame.new(Chi.Position)}, (Root.Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
+                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+                task.spawn(Tween, (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Chi.Position)}, ((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).Position - Chi.Position).Magnitude / 1500, Enum.EasingStyle.Linear);
             end;
         end;
             
