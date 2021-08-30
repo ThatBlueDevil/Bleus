@@ -228,20 +228,36 @@ local Farming = Library.New({
     });
 end;
 
+local Teleports = Library.New({ -- not order but that's not my problem lololol
+    Title = "Teleports";
+}); do
+    for i = 1, #Workspace.islandUnlockParts:GetChildren() do
+        local v = Workspace.islandUnlockParts:GetChildren()[i];
+        
+        Teleports.Button({
+            Text = v.Name,
+            Callback = function()
+                (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).CFrame = (v.CFrame + Vector3.new(0, -25, 0));
+                wait();
+                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+            end;
+        });
+    end;
+end;
+
 local Misc = Library.New({
     Title = "Misc"
 }); do
     Misc.Button({
         Text = "Unlock All Island's",
         Callback = function(v)
-            if not Character or not Root then return end;
             for i, v in next, Workspace.islandUnlockParts:GetChildren() do
                 if v:FindFirstChildWhichIsA("TouchTransmitter") then
                     local Transmitter = v:FindFirstChildWhichIsA("TouchTransmitter");
                     
-                    firetouchinterest(Root, Transmitter.Parent, 0);
+                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
                     wait(0.1);
-                    firetouchinterest(Root, Transmitter.Parent, 1);
+                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
                 end;
             end;
         end;
@@ -254,9 +270,9 @@ local Misc = Library.New({
                 if (v:FindFirstChild("Chest") and (v:FindFirstChild("circleInner") and v.circleInner:FindFirstChildWhichIsA("TouchTransmitter"))) then
                     local Transmitter = v.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
                     
-                    firetouchinterest(Root, Transmitter.Parent, 0);
+                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
                     wait(0.1);
-                    firetouchinterest(Root, Transmitter.Parent, 1);
+                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
                 end;
             end;
         end;
