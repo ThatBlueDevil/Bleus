@@ -1,8 +1,8 @@
-local UrlBase = "https://raw.githubusercontent.com/ThatBlueDevil/Bleus/main/"
+local UrlBase = "https://raw.githubusercontent.com/ThatBlueDevil/Bleus/main/";
 local Games = {
-  [1] = { Name = "", Link = UrlBase .. "" }
-}
+    [1335695570] = { Name = "Ninja Legends", Link = UrlBase .. "Ninja%20Legends/Source.lua" };
+    [1077961373] = { Name = "Giant Simulator", Link = UrlBase .. "GIANT_SIM/source.lua" };
+};
 
-if (Games[game.GameId]) then
-  return loadstring(game:HttpGet(Games[game.GameId].Link))() -- coded this on my school device so this getting big rework when I'm home
-end
+assert(Games[game.GameId], "[BLEUS] This game isn't supported!");
+loadstring(game:HttpGet(Games[game.GameId].Link))();
