@@ -34,6 +34,7 @@ local TweenService = s.TweenService;
 local RunService = s.RunService;
 local VirtualUser = s.VirtualUser;
 local ReplicatedStorage = s.ReplicatedStorage;
+local Lighting = s.Lighting;
 
 local Camera = Workspace.CurrentCamera;
 local Heartbeat, Stepped, RenderStepped = RunService.Heartbeat, RunService.Stepped, RunService.RenderStepped;
@@ -44,10 +45,7 @@ if not firetouchinterest then
     return;
 end;
 
--- thing for rank check.
-Character.HumanoidRootPart.CFrame = CFrame.new(120, 3, 32);
-
--- Functions consist of: Find | Tween | ninjaEvent | sellNin | getLastRank.
+-- Functions consist of: Find | Tween | ninjaEvent | sellNin | getLastRank | updateShop.
 local Find, Tween, ninjaEvent, sellNin, getItem; do
     function Find(Directory, Name)
         local d, e = math.huge;
@@ -98,24 +96,45 @@ local Find, Tween, ninjaEvent, sellNin, getItem; do
     end;
     
     function getItem(Option) -- lazy ass coding I dont wanna make better.
-        local dir; do
+        local Results, dir = { }, Player.PlayerGui.gameGui.itemsShopMenu.menus.ranksMenu; do
             if (Option == "Weapons") then
                 dir = Player.PlayerGui.gameGui.itemsShopMenu.menus.swordsMenu;
-            else
-                dir = Player.PlayerGui.gameGui.itemsShopMenu.menus.ranksMenu;
             end;
         end;
         
-        local Results = { };
         for i, v in next, dir:GetChildren() do
             if v:IsA("Frame") and (v:FindFirstChild("swordButton") and v:FindFirstChild("lockImage", true) and v:FindFirstChild("equippedLabel", true) and not v.swordButton.lockImage.Visible and not v.swordButton.equippedLabel.Visible) then
-                Results[#Results + 1] = v:FindFirstChildWhichIsA("ObjectValue").Value
+                Results[#Results + 1] = v:FindFirstChildWhichIsA("ObjectValue").Value;
             end;
         end;
         
-        return Results[#Results]
+        return tostring(Results[#Results]);
+    end;
+    
+    function updateShop()
+        local shopInnerCircle = Workspace.shopAreaCircles.shopAreaCircle19.circleInner;
+        local ItemShop = (Player.PlayerGui.gameGui.itemsShopMenu or Player.PlayerGui.gameGui:WaitForChild("itemsShopMenu"));
+        
+        if shopInnerCircle and not ItemShop.Visible then
+            local Transmitter = shopInnerCircle:FindFirstChildWhichIsA("TouchTransmitter");
+            
+            firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
+            wait(1);
+            firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
+        end;
+        
+        ItemShop.Visible = false;
+        
+        if Lighting:FindFirstChild("screenBlur") then
+            task.defer(Lighting.screenBlur.Destroy, Lighting.screenBlur);
+        end;
     end;
 end;
+
+updateShop(); -- just update the shop now lol.
+
+Player.CharacterAdded:Connect(updateShop);
+Player.equippedRank:GetPropertyChangedSignal("Value"):Connect(updateShop);
 
 -- Anti-AFK.
 if getconnections then
@@ -139,8 +158,8 @@ shared._Flags, shared._Chips = {
     AutoBuyShurikens,
     AutoBuySkills,
     AutoRankUp,
-    AutoFarmCoins,
-    AutoFarmChi
+    CollectCoins,
+    CollectChi
 }, {
     SellAtMaxNin,
     HideWeapon  
@@ -187,7 +206,7 @@ local Main = Library.New({
             end)
         end,
         
-        Options = { ["Sell At Max Ninjitsu"] = false };
+        Options = { ["Sell At Max Ninjitsu (buggy)"] = false };
     });
     
     Main.Toggle({
@@ -240,18 +259,18 @@ local Farming = Library.New({
     Title = "Farming";
 }); do
     Farming.Toggle({
-        Text = "Farm Coins",
+        Text = "Collect Coins",
         Callback = function(v)
-            shared._Flags.AutoFarmCoins = v;
+            shared._Flags.CollectCoins = v;
         end,
         
         Enabled = false;
     });
     
     Farming.Toggle({
-        Text = "Farm Chi",
+        Text = "Collect Chi",
         Callback = function(v)
-            shared._Flags.AutoFarmChi = v;
+            shared._Flags.CollectChi = v;
         end,
         
         Enabled = false;
@@ -323,16 +342,13 @@ pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
 wait()
 task.spawn(function()
-    shared._loop = Stepped:Connect(function()
-        local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
-        local Humanoid = (Character.Humanoid or Character:WaitForChild("Humanoid"));
-        
+    shared._loop = RenderStepped:Connect(function()
         if shared._Flags.AutoSwing then
             if not Player:FindFirstChild("ninjaEvent") then return end;
             
             for i, v in next, Player.Backpack:GetChildren() do
                 if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
-                    Humanoid:EquipTool(v);
+                    (Character.Humanoid or Character:WaitForChild("Humanoid")):EquipTool(v);
                 end;
             end;
             
@@ -353,7 +369,7 @@ task.spawn(function()
                     
                     if Character:FindFirstChild("swordCloneModel") then
                         task.defer(Character.swordCloneModel.Destroy, Character.swordCloneModel);
-                    end
+                    end;
                 end;
             end;
         end;
@@ -367,7 +383,7 @@ task.spawn(function()
         end;
         
         if shared._Flags.AutoBuySwords then
-            ninjaEvent("buySword", tostring(getItem("Weapons")));
+            ninjaEvent("buySword", getItem("Weapons"));
         end;
         
         if shared._Flags.AutoBuyShurikens then
@@ -378,26 +394,26 @@ task.spawn(function()
             ninjaEvent("buyAllSkills", "Blazing Vortex Island");
         end;
         
-        if shared._Flags.AutoFarmCoins then
+        if shared._Flags.CollectCoins then
             local Coins = Find(Workspace.spawnedCoins.Valley, "Coin");
             
             if Coins then
-                Humanoid:ChangeState(11);
-                Tween(Root, {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
+                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+                Tween((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
-        if shared._Flags.AutoFarmChi then
+        if shared._Flags.CollectChi then
             local Chi = Find(Workspace.spawnedCoins.Valley, "Chi");
             
             if Chi then
-                Humanoid:ChangeState(11);
-                Tween(Root, {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
+                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+                Tween((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
         if shared._Flags.AutoRankUp then
-            ninjaEvent("buyRank", tostring(getItem()));
+            ninjaEvent("buyRank", getItem());
         end;
     end);
 end);
