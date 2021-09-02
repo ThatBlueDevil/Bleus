@@ -10,9 +10,9 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinle
     SizeY = 400,
     Theme = "Aqua",
     ColorOverrides = {
-        MainFrame = Color3.fromRGB(35, 35, 35)
-    }
-})
+        MainFrame = Color3.fromRGB(35, 35, 35);
+    };
+});
 
 local s = setmetatable({}, {
     __index = function(self, key)
