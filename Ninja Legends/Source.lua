@@ -16,12 +16,13 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinle
 
 local s = setmetatable({}, {
     __index = function(self, key)
-        return game:GetService(key)
-    end
-})
+        return game:GetService(key);
+    end;
+});
 
 -- Localization.
 repeat wait() until (game and game:IsLoaded()) and (s.Players.LocalPlayer and s.Players.LocalPlayer.Character);
+
 local Player = s.Players.LocalPlayer;
 local Character = Player.Character or Player.CharacterAdded:Wait();
 
@@ -45,13 +46,13 @@ if not firetouchinterest then
     return;
 end;
 
--- Functions consist of: Find | Tween | ninjaEvent | sellNin | getLastRank | updateShop.
-local Find, Tween, ninjaEvent, sellNin, getItem; do
-    function Find(Directory, Name)
+-- Functions consist of: Find | Tween | ninjaEvent | sellNin | getName | updateShop.
+local Find, Tween, ninjaEvent, sellNin, getName, updateShop; do
+    function Find(dir, name)
         local d, e = math.huge;
         
-        for i, v in next, Directory:GetDescendants() do
-            if (v.Name:find(Name) and (v.Transparency and v.Transparency ~= 1)) then
+        for i, v in next, dir:GetDescendants() do -- when I get home ima see if I can change this to GetChildren,
+            if (v.Name:find(name) and (v.Transparency and v.Transparency ~= 1)) then
                 local Magnitude = Player:DistanceFromCharacter(v.Position);
                 
                 if Magnitude < d then
@@ -64,8 +65,8 @@ local Find, Tween, ninjaEvent, sellNin, getItem; do
         return e;
     end;
     
-    function Tween(Obj, Properties, Time)
-        local Tweeb = TweenService:Create(Obj, TweenInfo.new(Time), Properties);
+    function Tween(obj, props, time)
+        local Tweeb = TweenService:Create(obj, TweenInfo.new(time), props);
         Tweeb:Play();
         
     	return Tweeb;
@@ -76,18 +77,16 @@ local Find, Tween, ninjaEvent, sellNin, getItem; do
         Player.ninjaEvent:FireServer(...);
     end;
     
-    function sellNin(t) -- please lets just not...
+    function sellNin(t) -- I might make this better in the future.
         local Menu = Player.PlayerGui.gameGui.maxNinjitsuMenu;
         local SellCircle = Workspace.sellAreaCircles.sellAreaCircle16.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
         
         local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
         
         if t then
-            if Menu.Visible then
-                firetouchinterest(Root, SellCircle.Parent, 0);
-                wait(0.1);
-                firetouchinterest(Root, SellCircle.Parent, 1);
-            end;
+            firetouchinterest(Root, SellCircle.Parent, 0);
+            wait(0.1);
+            firetouchinterest(Root, SellCircle.Parent, 1);
         else
             firetouchinterest(Root, SellCircle.Parent, 0);
             wait(0.1);
@@ -95,9 +94,9 @@ local Find, Tween, ninjaEvent, sellNin, getItem; do
         end;
     end;
     
-    function getItem(Option) -- lazy ass coding I dont wanna make better.
+    function getName(Option) -- lazy code I dont wanna make better.
         local Results, dir = { }, Player.PlayerGui.gameGui.itemsShopMenu.menus.ranksMenu; do
-            if (Option == "Weapons") then
+            if Option == "Weapons" then
                 dir = Player.PlayerGui.gameGui.itemsShopMenu.menus.swordsMenu;
             end;
         end;
@@ -115,11 +114,12 @@ local Find, Tween, ninjaEvent, sellNin, getItem; do
         local shopInnerCircle = Workspace.shopAreaCircles.shopAreaCircle19.circleInner;
         local ItemShop = (Player.PlayerGui.gameGui.itemsShopMenu or Player.PlayerGui.gameGui:WaitForChild("itemsShopMenu"));
         
-        if shopInnerCircle and not ItemShop.Visible then
+        if (shopInnerCircle and not ItemShop.Visible) then
             local Transmitter = shopInnerCircle:FindFirstChildWhichIsA("TouchTransmitter");
+            if not Transmitter then return end;
             
             firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
-            wait(1);
+            wait(0.1);
             firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
         end;
         
@@ -182,8 +182,8 @@ local Main = Library.New({
         Text = "pop",
         Callback = function(Chip)
             table.foreach(Chip, function(Option, State)
-                shared._Chips.HideWeapon = State
-            end)
+                shared._Chips.HideWeapon = State;
+            end);
         end,
         
         Options = { ["Hide Weapon"] = false };
@@ -202,11 +202,11 @@ local Main = Library.New({
         Text = "pop2",
         Callback = function(Chip)
             table.foreach(Chip, function(Option, State)
-                shared._Chips.SellAtMaxNin = State
-            end)
+                shared._Chips.SellAtMaxNin = State;
+            end);
         end,
         
-        Options = { ["Sell At Max Ninjitsu (buggy)"] = false };
+        Options = { ["Sell At Max Ninjitsu"] = false };
     });
     
     Main.Toggle({
@@ -277,7 +277,7 @@ local Farming = Library.New({
     });
 end;
 
-local Teleports = Library.New({ -- not order but that's not my problem lololol
+local Teleports = Library.New({
     Title = "Teleports";
 }); do
     for i = 1, #Workspace.islandUnlockParts:GetChildren() do
@@ -286,9 +286,9 @@ local Teleports = Library.New({ -- not order but that's not my problem lololol
         Teleports.Button({
             Text = v.Name,
             Callback = function()
-                (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).CFrame = (v.CFrame + Vector3.new(0, -25, 0));
+                Character.HumanoidRootPart.CFrame = (v.CFrame + Vector3.new(0, -25, 0));
                 wait();
-                (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
+                Character.Humanoid:ChangeState(11);
             end;
         });
     end;
@@ -300,13 +300,16 @@ local Misc = Library.New({
     Misc.Button({
         Text = "Unlock All Island's",
         Callback = function(v)
-            for i, v in next, Workspace.islandUnlockParts:GetChildren() do
+            for i = 1, #Workspace.islandUnlockParts:GetChildren() do
+                local v = Workspace.islandUnlockParts:GetChildren()[i];
+
                 if v:FindFirstChildWhichIsA("TouchTransmitter") then
                     local Transmitter = v:FindFirstChildWhichIsA("TouchTransmitter");
-                    
-                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
+                    if not Transmitter then return end;
+
+                    firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 0);
                     wait(0.1);
-                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
+                    firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 1);
                 end;
             end;
         end;
@@ -315,13 +318,18 @@ local Misc = Library.New({
     Misc.Button({
         Text = "Open All Chest's",
         Callback = function(v)
-            for i, v in next, Workspace:GetChildren() do
+            for i = 1, #Workspace:GetChildren() do
+                local v = Workspace:GetChildren()[i];
+                
                 if (v:FindFirstChild("Chest") and (v:FindFirstChild("circleInner") and v.circleInner:FindFirstChildWhichIsA("TouchTransmitter"))) then
                     local Transmitter = v.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
-                    
-                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
+                    if not Transmitter then return end;
+
+                    firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 0);
                     wait(0.1);
-                    firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
+                    firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 1);
+
+                    wait(3); -- because of chest delay.
                 end;
             end;
         end;
@@ -330,9 +338,14 @@ local Misc = Library.New({
     Misc.Button({
         Text = "Hide Pop-Ups",
         Callback = function(v)
-            if Player.PlayerGui:FindFirstChild("statEffectsGui") then
-                Player.PlayerGui.statEffectsGui:Destroy();
-            end;
+            if not Player.PlayerGui:FindFirstChild("statEffectsGui") then return end;
+            Player.PlayerGui.statEffectsGui:Destroy();
+
+            Player.PlayerGui.ChildAdded:Connect(function(v)
+                if v.Name == "statEffectsGui" then
+                    task.defer(v.Destroy, v) -- v:Destroy(); defering is better than blatantly destroying it.
+                end;
+            end);
         end;
     });
 end;
@@ -340,23 +353,25 @@ end;
 -- Main Loop.
 pcall(function() if shared._loop then shared._loop:Disconnect() end end);
 
-wait()
+wait();
 task.spawn(function()
-    shared._loop = RenderStepped:Connect(function()
+    shared._loop = Stepped:Connect(function()
         if shared._Flags.AutoSwing then
             if not Player:FindFirstChild("ninjaEvent") then return end;
-            
+
             for i, v in next, Player.Backpack:GetChildren() do
                 if (v:FindFirstChild("ninjitsuGain") and not Character:FindFirstChild("ninjitsuGain")) then
                     (Character.Humanoid or Character:WaitForChild("Humanoid")):EquipTool(v);
                 end;
             end;
             
-            if Character:FindFirstChildWhichIsA("Tool") then
+            if Character:FindFirstChildWhichIsA("Tool"):FindFirstChild("ninjitsuGain") then
                 ninjaEvent("swingKatana");
                 
                 if shared._Chips.HideWeapon then
                     local Weapon = Character:FindFirstChildWhichIsA("Tool");
+                    if (not Weapon or not Weapon:FindFirstChild("ninjitsuGain")) then return end;
+
                     for i = 1, #Weapon:GetChildren() do
                         local v = Weapon:GetChildren()[i];
                         
@@ -374,7 +389,7 @@ task.spawn(function()
             end;
         end;
         
-        if shared._Flags.AutoSell then -- had the idea that this was gonna be super cool! turned out like dog shit.
+        if shared._Flags.AutoSell then
             sellNin(shared._Chips.SellAtMaxNin);
         end;
         
@@ -383,7 +398,7 @@ task.spawn(function()
         end;
         
         if shared._Flags.AutoBuySwords then
-            ninjaEvent("buySword", getItem("Weapons"));
+            ninjaEvent("buySword", getName("Weapons"));
         end;
         
         if shared._Flags.AutoBuyShurikens then
@@ -399,7 +414,7 @@ task.spawn(function()
             
             if Coins then
                 (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
-                Tween((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
+                (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).CFrame = Coins.CFrame; --Tween((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Coins.Position)}, Player:DistanceFromCharacter(Coins.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
@@ -408,12 +423,12 @@ task.spawn(function()
             
             if Chi then
                 (Character.Humanoid or Character:WaitForChild("Humanoid")):ChangeState(11);
-                Tween((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
+                (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")).CFrame = Chi.CFrame; --Tween((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), {CFrame = CFrame.new(Chi.Position)}, Player:DistanceFromCharacter(Chi.Position) / 1500, Enum.EasingStyle.Linear);
             end;
         end;
         
         if shared._Flags.AutoRankUp then
-            ninjaEvent("buyRank", getItem());
+            ninjaEvent("buyRank", getName("Ranks"));
         end;
     end);
 end);
