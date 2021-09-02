@@ -6,3 +6,6 @@
 
 ## 30/08/2021 11:57 PM | Notes:
   Re-did some methods! No more lag I hope :))
+  
+## 9/2/2021 n/a | Notes:
+  More bug fixes?
