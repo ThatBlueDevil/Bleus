@@ -80,8 +80,9 @@ local Find, Tween, ninjaEvent, sellNin, getName, updateShop; do
     function sellNin(t) -- I might make this better in the future.
         local Menu = Player.PlayerGui.gameGui.maxNinjitsuMenu;
         local SellCircle = Workspace.sellAreaCircles.sellAreaCircle16.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
-        
         local Root = (Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart"));
+
+        if (not SellCircle or not Menu) then return end;
         
         if t then
             firetouchinterest(Root, SellCircle.Parent, 0);
@@ -116,8 +117,6 @@ local Find, Tween, ninjaEvent, sellNin, getName, updateShop; do
         
         if (shopInnerCircle and not ItemShop.Visible) then
             local Transmitter = shopInnerCircle:FindFirstChildWhichIsA("TouchTransmitter");
-            if not Transmitter then return end;
-            
             firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 0);
             wait(0.1);
             firetouchinterest((Character.HumanoidRootPart or Character:WaitForChild("HumanoidRootPart")), Transmitter.Parent, 1);
@@ -287,7 +286,7 @@ local Teleports = Library.New({
             Text = v.Name,
             Callback = function()
                 Character.HumanoidRootPart.CFrame = (v.CFrame + Vector3.new(0, -25, 0));
-                wait();
+                task.wait();
                 Character.Humanoid:ChangeState(11);
             end;
         });
@@ -305,10 +304,8 @@ local Misc = Library.New({
 
                 if v:FindFirstChildWhichIsA("TouchTransmitter") then
                     local Transmitter = v:FindFirstChildWhichIsA("TouchTransmitter");
-                    if not Transmitter then return end;
-
                     firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 0);
-                    wait(0.1);
+                    task.wait();
                     firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 1);
                 end;
             end;
@@ -323,10 +320,8 @@ local Misc = Library.New({
                 
                 if (v:FindFirstChild("Chest") and (v:FindFirstChild("circleInner") and v.circleInner:FindFirstChildWhichIsA("TouchTransmitter"))) then
                     local Transmitter = v.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
-                    if not Transmitter then return end;
-
                     firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 0);
-                    wait(0.1);
+                    task.wait();
                     firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 1);
 
                     wait(3); -- because of chest delay.
@@ -343,7 +338,7 @@ local Misc = Library.New({
 
             Player.PlayerGui.ChildAdded:Connect(function(v)
                 if v.Name == "statEffectsGui" then
-                    task.defer(v.Destroy, v) -- v:Destroy(); defering is better than blatantly destroying it.
+                    task.defer(v.Destroy, v); -- v:Destroy(); defering is better than blatantly destroying it.
                 end;
             end);
         end;
