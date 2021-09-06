@@ -297,7 +297,7 @@ local Misc = Library.New({
     Title = "Misc"
 }); do
     Misc.Button({
-        Text = "Unlock All Island's",
+        Text = "Unlock All Islands",
         Callback = function(v)
             for i = 1, #Workspace.islandUnlockParts:GetChildren() do
                 local v = Workspace.islandUnlockParts:GetChildren()[i];
@@ -313,12 +313,12 @@ local Misc = Library.New({
     });
     
     Misc.Button({
-        Text = "Open All Chest's",
+        Text = "Open All Chests",
         Callback = function(v)
             for i = 1, #Workspace:GetChildren() do
                 local v = Workspace:GetChildren()[i];
                 
-                if (v:FindFirstChild("Chest") and (v:FindFirstChild("circleInner") and v.circleInner:FindFirstChildWhichIsA("TouchTransmitter"))) then
+                if v:FindFirstChild("Chest") and (v:FindFirstChild("circleInner") and v.circleInner:FindFirstChildWhichIsA("TouchTransmitter")) then
                     local Transmitter = v.circleInner:FindFirstChildWhichIsA("TouchTransmitter");
                     firetouchinterest(Character.HumanoidRootPart, Transmitter.Parent, 0);
                     task.wait();
