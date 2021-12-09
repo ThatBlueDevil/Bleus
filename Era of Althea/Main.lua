@@ -60,42 +60,8 @@ local UserCharacter = User.Character or User.CharacterAdded:Wait()
 
 local SomeWhatSecretEventLol = UserCharacter.Client.Events["LightAttack"]
 
---
-
-local setreadonly = make_writeable or setreadonly or changereadonly or change_writeable
-
-local metatable = getrawmetatable(game) or debug.getmetatable(game)
-local oldmetatable = metatable.__namecall
-
-local check = checkcaller()
-
-setreadonly(metatable, false)
-
-if not newcclosure then
-    newcclosure = function(cclosure)
-        return cclosure
-    end
-end
-
-metatable.__namecall =
-    newcclosure(function(self, ...)
-        local Arguments = {...}
-        
-        local Method = getnamecallmethod()
-        
-        if not check then
-            if Method == "Kick" or Method == "kick" then
-                return wait(9e9)
-            end
-        end
-        
-        return oldmetatable(self, ...)
-    end
-)
-
 -- Functions --
-
-function Nearest()
+local function Nearest()
     d = getgenv().Studs
     e = nil
     
