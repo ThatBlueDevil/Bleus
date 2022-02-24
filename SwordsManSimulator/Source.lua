@@ -42,8 +42,6 @@ local function getStrength(player)
     local amount = quick.find(player.leaderstats:GetChildren(), function(v)
         return v.Name:find('Strength');
     end).Value;
-    
-    if not amount then return end;
     return amount;
 end;
 
@@ -54,7 +52,7 @@ local function autoSwing()
         if weapon then weapon.Parent = character end;
     end;
     
-    if (weapon and weapon:FindFirstChild('Animation')) then
+    if (weapon and weapon:FindFirstChild('Slash', true)) then
         weapon.Animation.Slash:FireServer();
     end;
 end;
@@ -107,9 +105,14 @@ getgenv().mainLoop = stepped:Connect(function()
             local humanoid = v.Character:FindFirstChild('Humanoid');
             if (humanoid and humanoid.Health <= 0) then return end;
             
-            if getStrength(v) > getStrength(client) then
-                return; -- You're probably going to die lmao.
+            do -- ugly code no way!!!
+                local clientStrength = getStrength(client);
+                local targetStrength = getStrength(v);
+                if (clientStrength and targetStrength) then
+                    if targetStrength > clientStrength then return end;
+                end;
             end;
+            
             if v.Character:FindFirstChild('ForceField') then
                 return; -- Target has a forcefield, prevent attempt to damaging them.
             end;
