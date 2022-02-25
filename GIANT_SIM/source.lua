@@ -82,7 +82,7 @@ local function getANode()
 end;
 
 local main = lib({
-    Title = "Main";
+    Title = 'Main';
 }); do
     main.Toggle({
         Text = 'Auto Farm',
