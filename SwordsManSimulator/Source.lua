@@ -94,11 +94,13 @@ local main = lib({
             while farmKillsState do
                 task.spawn(function()
                     local target = getClosestPlayer();
-                    local targetRootPart = target.Character.HumanoidRootPart;
-                    
-                    character.HumanoidRootPart.CFrame = targetRootPart.CFrame + (targetRootPart.CFrame.lookVector * 2.5);
-                    if not autoSwingState then
-                        autoSwing();
+                    if target then
+                        local targetRootPart = target.Character.HumanoidRootPart;
+                        
+                        character.HumanoidRootPart.CFrame = targetRootPart.CFrame + (targetRootPart.CFrame.lookVector * 2.5);
+                        if not autoSwingState then
+                            autoSwing();
+                        end;
                     end;
                 end);
                 task.wait();
