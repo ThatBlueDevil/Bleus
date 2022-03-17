@@ -4,6 +4,9 @@
     "Spawn killing has been patched!" 🤓
 --]]
 
+if (shared.youreA_Retard) then return end; -- lol spencer
+shared.youreA_Retard = true;
+
 local quick = loadstring(game:HttpGet('https://raw.githubusercontent.com/Belkworks/quick/master/init.lua'))();
 local lib = loadstring(game:HttpGet('https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua'))().Load({
     Title = 'Swordman Simulator  ―  Bleus',
@@ -52,15 +55,11 @@ local function getClosestPlayer()
     for i = 1, #players:GetPlayers() do
         local v = players:GetPlayers()[i];
         if v ~= client and (v.Character and (v.Character and (v.Character:FindFirstChild('Humanoid') and v.Character:FindFirstChild('HumanoidRootPart')))) then
-            if v.Character.Humanoid.Health <= 0 then continue end;
-            if v.Character:FindFirstChild('ForceField') then continue end;
-            
+            if v.Character.Humanoid.Health <= 0 or v.Character:FindFirstChild('ForceField') then continue end;
             do
                 local clientStrength = getStrength(client);
                 local targetStrength = getStrength(v);
-                if (clientStrength and targetStrength) and targetStrength > clientStrength then
-                    continue;
-                end;
+                if (clientStrength and targetStrength) and targetStrength > clientStrength then continue end;
             end;
             
             local magnitude = client:DistanceFromCharacter(v.Character.HumanoidRootPart.Position);
@@ -79,7 +78,7 @@ local main = lib({
     main.Toggle({
         Text = 'Auto Swing',
         Callback = function(state)
-            getgenv().autoSwingState = state;
+            autoSwingState = state;
             while autoSwingState do
                 autoSwing();
                 task.wait();
@@ -90,19 +89,16 @@ local main = lib({
     main.Toggle({
         Text = 'Farm Kills',
         Callback = function(state)
-            getgenv().farmKillsState = state;
+            farmKillsState = state;
             while farmKillsState do
-                task.spawn(function()
-                    local target = getClosestPlayer();
-                    if target then
-                        local targetRootPart = target.Character.HumanoidRootPart;
-                        
-                        character.HumanoidRootPart.CFrame = targetRootPart.CFrame + (targetRootPart.CFrame.lookVector * 2.5);
-                        if not autoSwingState then
-                            autoSwing();
-                        end;
+                local target = getClosestPlayer();
+                if target then
+                    local targetRootPart = target.Character.HumanoidRootPart;
+                    character.HumanoidRootPart.CFrame = targetRootPart.CFrame + (targetRootPart.CFrame.lookVector * 2.75);
+                    if not autoSwingState then
+                        autoSwing();
                     end;
-                end);
+                end;
                 task.wait();
             end;
         end;
