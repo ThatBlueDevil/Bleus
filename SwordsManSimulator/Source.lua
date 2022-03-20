@@ -22,17 +22,33 @@ local lib = loadstring(game:HttpGet('https://raw.githubusercontent.com/Kinlei/Ma
 local s = quick.Service;
 
 local workspace = s.Workspace;
+local currentCamera = workspace.CurrentCamera;
 local replicatedStorage = s.ReplicatedStorage;
+local virtualUser = s.VirtualUser;
 local players = s.Players;
 local runService = s.RunService;
 local stepped = runService.Stepped;
 
 local client = players.LocalPlayer;
 local character = client.Character or client.CharacterAdded:Wait();
+local root = character:WaitForChild('HumanoidRootPart');
 
 client.CharacterAdded:Connect(function(char)
     character = char;
+    root = char:WaitForChild('HumanoidRootPart');
 end);
+
+if getconnections then
+    for i = 1, #getconnections(client.Idled) do
+        getconnections(client.Idled)[i]:Disable();
+    end;
+else
+    client.Idled:Connect(function()
+       virtualUser:Button2Down(Vector2.new(), currentCamera.CFrame);
+       wait(1);
+       virtualUser:Button2Up(Vector2.new(), currentCamera.CFrame);
+    end);
+end;
 
 local swordFuncs = require(replicatedStorage.Framework.Core.Shared.SwordFunctions);
 
@@ -44,7 +60,9 @@ end;
 local function autoSwing() -- complicated? I'll just improve ltr on
     local sword = swordFuncs.GetBestSword(client).ModelPath.Name;
     if not character:FindFirstChild(sword) then
-        client.Backpack[sword].Parent = character;
+        local b = client.Backpack:FindFirstChild(sword);
+        if not b then return end;
+        b.Parent = character;
     end;
     
     character[sword]:Activate();
@@ -94,10 +112,8 @@ local main = lib({
                 local target = getClosestPlayer();
                 if target then
                     local targetRootPart = target.Character.HumanoidRootPart;
-                    character.HumanoidRootPart.CFrame = targetRootPart.CFrame + (targetRootPart.CFrame.lookVector * 2.75);
-                    if not autoSwingState then
-                        autoSwing();
-                    end;
+                    root.CFrame = targetRootPart.CFrame + (targetRootPart.CFrame.lookVector * 2.75);
+                    if not autoSwingState then autoSwing() end;
                 end;
                 task.wait();
             end;
