@@ -51,6 +51,7 @@ else
 end;
 
 local swordFuncs = require(replicatedStorage.Framework.Core.Shared.SwordFunctions);
+local rebirthFuncs = require(replicatedStorage.Framework.Core.Shared.RebirthFunctions);
 
 local function getStrength(player)
     local strength = (player:FindFirstChild('leaderstats') and player.leaderstats:FindFirstChild('\240\159\146\170 Strength'));
@@ -99,6 +100,17 @@ local main = lib({
             autoSwingState = state;
             while autoSwingState do
                 autoSwing();
+                task.wait();
+            end;
+        end;
+    });
+
+    main.Toggle({
+        Text = 'Auto Rebirth',
+        Callback = function(state)
+            autoRebirthState = state;
+            while autoRebirthState do
+                rebirthFuncs.Rebirth(client);
                 task.wait();
             end;
         end;
